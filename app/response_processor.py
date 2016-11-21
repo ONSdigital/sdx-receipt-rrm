@@ -1,6 +1,7 @@
 from app import receipt
 from app import settings
 from app.settings import session
+from json import loads
 from requests.packages.urllib3.exceptions import MaxRetryError
 
 
@@ -14,6 +15,7 @@ class ResponseProcessor:
             self.skip_receipt = False
 
     def process(self, decrypted_json):
+        decrypted_json = loads(decrypted_json)
         metadata = decrypted_json['metadata']
         self.logger = self.logger.bind(user_id=metadata['user_id'], ru_ref=metadata['ru_ref'])
 

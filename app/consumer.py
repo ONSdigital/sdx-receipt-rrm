@@ -1,4 +1,3 @@
-import json
 import logging
 from structlog import wrap_logger
 from app.async_consumer import AsyncConsumer
@@ -34,11 +33,11 @@ class Consumer(AsyncConsumer):
         delivery_count = get_delivery_count_from_properties(properties)
         delivery_count += 1
 
-        message = json.loads(body)
-
         processor = ResponseProcessor(logger)
 
         try:
+            message = body.decode("utf-8")
+
             processed_ok = processor.process(message)
 
             if processed_ok:
