@@ -59,9 +59,7 @@ class ResponseProcessor:
             self.logger.info("Calling service", request_url=request_url)
             r = None
 
-            if json:
-                r = session.post(request_url, json=json, headers=headers, verify=verify, auth=auth)
-            elif data:
+            if data:
                 r = session.post(request_url, data=data, headers=headers, verify=verify, auth=auth)
             else:
                 r = session.get(request_url, headers=headers, verify=verify, auth=auth)
