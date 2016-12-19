@@ -1,11 +1,57 @@
+from json import loads
+import os
+
 from app import receipt
 from app import settings
 from app.settings import session
-from json import loads
+
+from cryptography.fernet import Fernet
 from requests.packages.urllib3.exceptions import MaxRetryError
 
 
 class ResponseProcessor:
+
+    @staticmethod
+    def options():
+        rv = {}
+        try:
+            rv["secret"] = os.getenv("SDX_RECEIPT_RRM_SECRET").encode("ascii")
+        except Exception as e:
+            # No secret in env
+            pass
+        return rv
+
+    @staticmethod
+    def encrypt(message, secret):
+        """
+        Message may be a string or bytes.
+        Secret key must be 32 url-safe base64-encoded bytes.
+
+        """
+        try:
+            f = Fernet(secret)
+        except ValueError:
+            return None
+        try:
+            token = f.encrypt(message)
+        except TypeError:
+            token = f.encrypt(message.encode("utf-8"))
+        return token
+
+    @staticmethod
+    def decrypt(token, secret):
+        """
+        Secret key must be 32 url-safe base64-encoded bytes
+
+        Returned value is a string.
+        """
+        try:
+            f = Fernet(secret)
+        except ValueError:
+            return None
+        message = f.decrypt(token)
+        return message.decode("utf-8")
+
     def __init__(self, logger):
         self.logger = logger
         self.tx_id = ""
@@ -16,6 +62,9 @@ class ResponseProcessor:
 
     def process(self, decrypted_json):
         decrypted_json = loads(decrypted_json)
+        if "metadata" not in decrypted_json:
+            return False
+
         metadata = decrypted_json['metadata']
         self.logger = self.logger.bind(user_id=metadata['user_id'], ru_ref=metadata['ru_ref'])
 

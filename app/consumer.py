@@ -34,6 +34,7 @@ class Consumer(AsyncConsumer):
         delivery_count += 1
 
         processor = ResponseProcessor(logger)
+        options = ResponseProcessor.options()
 
         try:
             message = body.decode("utf-8")
