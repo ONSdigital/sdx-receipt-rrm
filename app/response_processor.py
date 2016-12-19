@@ -60,8 +60,15 @@ class ResponseProcessor:
         else:
             self.skip_receipt = False
 
-    def process(self, decrypted_json):
-        decrypted_json = loads(decrypted_json)
+    def process(self, message, **kwargs):
+        try:
+            secret = kwargs.pop("secret")
+            message = ResponseProcessor.decrypt(message, secret=secret)
+        except KeyError:
+            # No secret defined; message is plaintext
+            pass
+
+        decrypted_json = loads(message)
         if "metadata" not in decrypted_json:
             return False
 
