@@ -39,7 +39,7 @@ class Consumer(AsyncConsumer):
         try:
             message = body.decode("utf-8")
 
-            processed_ok = processor.process(message)
+            processed_ok = processor.process(message, **options)
 
             if processed_ok:
                 self.acknowledge_message(basic_deliver.delivery_tag, tx_id=processor.tx_id)
