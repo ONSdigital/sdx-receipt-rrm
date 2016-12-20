@@ -65,7 +65,6 @@ class ResponseProcessor:
             self.skip_receipt = False
 
     def process(self, message, **kwargs):
-        logging.debug(kwargs)
         try:
             secret = kwargs.pop("secret")
             message = ResponseProcessor.decrypt(message, secret=secret)
