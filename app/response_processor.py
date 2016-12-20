@@ -1,5 +1,4 @@
 from json import loads
-import logging
 import os
 
 from app import receipt
