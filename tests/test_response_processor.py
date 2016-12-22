@@ -10,21 +10,23 @@ from structlog import wrap_logger
 
 logger = wrap_logger(logging.getLogger(__name__))
 
+testVar = "SDX_RECEIPT_RRM_SECRET"
+
 
 class TestResponseProcessorSettings(unittest.TestCase):
 
     @unittest.skipIf(
-        "SDX_RECEIPT_RRM_SECRET" in os.environ,
+        testVar in os.environ,
         "variables match live environment"
     )
     def test_no_settings_only_env(self):
         try:
-            os.environ["SDX_RECEIPT_RRM_SECRET"] = "y" * 44
-            self.assertTrue(os.getenv("SDX_RECEIPT_RRM_SECRET"))
+            os.environ[testVar] = "y" * 44
+            self.assertTrue(os.getenv(testVar))
             rv = ResponseProcessor.options()
             self.assertEqual({"secret": b"y" * 44}, rv)
         finally:
-            del os.environ["SDX_RECEIPT_RRM_SECRET"]
+            del os.environ[testVar]
 
     def test_no_settings(self):
         rv = ResponseProcessor.options()
