@@ -10,7 +10,7 @@ logger = wrap_logger(logging.getLogger(__name__))
 
 class Consumer(AsyncConsumer):
     def on_message(self, unused_channel, basic_deliver, properties, body):
-        logger.info('Received message', delivery_tag=basic_deliver.delivery_tag, app_id=properties.app_id, body=body.decode("utf-8"))
+        logger.info('Received message', delivery_tag=basic_deliver.delivery_tag, app_id=properties.app_id)
 
         processor = ResponseProcessor(logger)
         options = ResponseProcessor.options()
