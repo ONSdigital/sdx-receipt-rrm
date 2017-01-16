@@ -34,10 +34,9 @@ def get_receipt_endpoint(decrypted_json):
 
     host = settings.RECEIPT_HOST
     path = settings.RECEIPT_PATH
-    logger.debug("RECEIPT|HOST/PATH: %s/%s" % (host, path))
     uri = path + "/" + statistical_unit_id + "/collectionexercises/" + exercise_sid + "/receipts"
     endpoint = host + "/" + uri
-    logger.debug("RECEIPT|ENDPOINT: %s" % endpoint)
+    logger.debug("Receipt endpoint constructed", endpoint=endpoint, host=host, path=path)
     return endpoint
 
 
