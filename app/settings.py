@@ -15,6 +15,8 @@ RECEIPT_PATH = os.getenv("RECEIPT_PATH", "reportingunits")
 RECEIPT_USER = os.getenv("RECEIPT_USER", "")
 RECEIPT_PASS = os.getenv("RECEIPT_PASS", "")
 
+QUEUE_MAX_MESSAGE_DELIVERIES = 3
+
 RABBIT_QUEUE = os.getenv('RABBITMQ_QUEUE', 'rrm_receipt')
 RABBIT_EXCHANGE = os.getenv('RABBITMQ_EXCHANGE', 'message')
 
