@@ -7,11 +7,13 @@ from app import settings
 logging.basicConfig(level=settings.LOGGING_LEVEL, format=settings.LOGGING_FORMAT)
 logger = wrap_logger(logging.getLogger(__name__))
 
+
 def get_delivery_count_from_properties(properties):
     delivery_count = 0
     if properties.headers and 'x-delivery-count' in properties.headers:
         delivery_count = properties.headers['x-delivery-count']
     return delivery_count
+
 
 class Consumer(AsyncConsumer):
     def on_message(self, unused_channel, basic_deliver, properties, body):
