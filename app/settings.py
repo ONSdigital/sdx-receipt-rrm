@@ -20,6 +20,11 @@ QUEUE_MAX_MESSAGE_DELIVERIES = 3
 RABBIT_QUEUE = os.getenv('RABBITMQ_QUEUE', 'rrm_receipt')
 RABBIT_EXCHANGE = os.getenv('RABBITMQ_EXCHANGE', 'message')
 
+SDX_RECEIPT_RRM_SECRET = os.getenv("SDX_RECEIPT_RRM_SECRET")
+if SDX_RECEIPT_RRM_SECRET is not None:
+    SDX_RECEIPT_RRM_SECRET = SDX_RECEIPT_RRM_SECRET.encode("ascii")
+
+
 RABBIT_URL = 'amqp://{user}:{password}@{hostname}:{port}/{vhost}'.format(
     hostname=os.getenv('RABBITMQ_HOST', 'rabbit'),
     port=os.getenv('RABBITMQ_PORT', 5672),

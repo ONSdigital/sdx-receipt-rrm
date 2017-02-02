@@ -1,10 +1,11 @@
 import base64
 import logging
-import os
 import unittest
 
+from app import settings
+
 from app.response_processor import ResponseProcessor
-from tests.test_data import valid_decrypted, invalid_decrypted
+from tests.test_data import valid_message, invalid_decrypted
 
 from structlog import wrap_logger
 
@@ -12,25 +13,8 @@ logger = wrap_logger(logging.getLogger(__name__))
 
 testVar = "SDX_RECEIPT_RRM_SECRET"
 
-
-class TestResponseProcessorSettings(unittest.TestCase):
-
-    @unittest.skipIf(
-        testVar in os.environ,
-        "variables match live environment"
-    )
-    def test_no_settings_only_env(self):
-        try:
-            os.environ[testVar] = "y" * 44
-            self.assertTrue(os.getenv(testVar))
-            rv = ResponseProcessor.options()
-            self.assertEqual({"secret": b"y" * 44}, rv)
-        finally:
-            del os.environ[testVar]
-
-    def test_no_settings(self):
-        rv = ResponseProcessor.options()
-        self.assertEqual({}, rv)
+secret = b"y" * 44
+settings.SDX_RECEIPT_RRM_SECRET = secret.decode("ascii")
 
 
 class DecryptionTests(unittest.TestCase):
@@ -80,7 +64,7 @@ class TestResponseProcessor(unittest.TestCase):
         self.processor.skip_receipt = True
 
     def test_valid_case_ref(self):
-        result = self.processor.process(valid_decrypted)
+        result = self.processor.process(valid_message)
         self.assertTrue(result)
 
     def test_invalid_case_ref(self):
