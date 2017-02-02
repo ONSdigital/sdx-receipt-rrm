@@ -29,12 +29,13 @@ class Consumer(AsyncConsumer):
 
             if processed_ok:
                 self.acknowledge_message(basic_deliver.delivery_tag, tx_id=processor.tx_id)
-            elif delivery_count == settings.QUEUE_MAX_MESSAGE_DELIVERIES:
+            elif delivery_count >= settings.QUEUE_MAX_MESSAGE_DELIVERIES:
                 logger.error(
                     "Reached max retries",
                     tx_id=processor.tx_id,
                     delivery_count=delivery_count
                 )
+                self.reject_message(basic_deliver.delivery_tag, tx_id=processor.tx_id)
 
         except Exception as e:
             logger.error("ResponseProcessor failed", exception=e, tx_id=processor.tx_id)
