@@ -17,10 +17,10 @@ def get_delivery_count_from_properties(properties):
 
 class Consumer(AsyncConsumer):
     def on_message(self, unused_channel, basic_deliver, properties, body):
-        logger.info('Received message', queue=self.QUEUE, delivery_tag=basic_deliver.delivery_tag, app_id=properties.app_id)
-
         delivery_count = get_delivery_count_from_properties(properties)
         delivery_count += 1
+
+        logger.info('Received message', queue=self.QUEUE, delivery_tag=basic_deliver.delivery_tag, delivery_count=delivery_count, app_id=properties.app_id)
 
         processor = ResponseProcessor(logger)
         options = ResponseProcessor.options()
