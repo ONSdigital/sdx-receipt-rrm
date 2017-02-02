@@ -7,10 +7,18 @@ from app import settings
 logging.basicConfig(level=settings.LOGGING_LEVEL, format=settings.LOGGING_FORMAT)
 logger = wrap_logger(logging.getLogger(__name__))
 
+def get_delivery_count_from_properties(properties):
+    delivery_count = 0
+    if properties.headers and 'x-delivery-count' in properties.headers:
+        delivery_count = properties.headers['x-delivery-count']
+    return delivery_count
 
 class Consumer(AsyncConsumer):
     def on_message(self, unused_channel, basic_deliver, properties, body):
         logger.info('Received message', queue=self.QUEUE, delivery_tag=basic_deliver.delivery_tag, app_id=properties.app_id)
+
+        delivery_count = get_delivery_count_from_properties(properties)
+        delivery_count += 1
 
         processor = ResponseProcessor(logger)
         options = ResponseProcessor.options()
@@ -21,6 +29,12 @@ class Consumer(AsyncConsumer):
 
             if processed_ok:
                 self.acknowledge_message(basic_deliver.delivery_tag, tx_id=processor.tx_id)
+            elif delivery_count == settings.QUEUE_MAX_MESSAGE_DELIVERIES:
+                logger.error(
+                    "Reached max retries",
+                    tx_id=processor.tx_id,
+                    delivery_count=delivery_count
+                )
 
         except Exception as e:
             logger.error("ResponseProcessor failed", exception=e, tx_id=processor.tx_id)
