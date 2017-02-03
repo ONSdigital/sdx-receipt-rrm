@@ -35,7 +35,7 @@ class ResponseProcessor:
             message = self._decrypt(token=message, secret=settings.SDX_RECEIPT_RRM_SECRET)
         except Exception as e:
             self.logger.exception("Exception decrypting message", exception=e)
-            raise RetryableError("Failed to decrypt message")
+            raise BadMessageError("Failed to decrypt message")
 
         # Validate
         decrypted_json = loads(message)
@@ -52,13 +52,9 @@ class ResponseProcessor:
     def _decrypt(self, token, secret):
         f = Fernet(secret)
         try:
-            try:
-                message = f.decrypt(token)
-            except TypeError:
-                message = f.decrypt(token.encode("utf-8"))
-        except Exception:
-            # If anything is ary, wrap it in a BadMessageError
-            raise BadMessageError
+            message = f.decrypt(token)
+        except TypeError:
+            message = f.decrypt(token.encode("utf-8"))
         return message.decode("utf-8")
 
     def _validate(self, decrypted):

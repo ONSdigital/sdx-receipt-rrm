@@ -2,7 +2,7 @@ import unittest
 import mock
 import json
 
-from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet, InvalidToken
 from app.response_processor import ResponseProcessor, BadMessageError, RetryableError
 from tests.test_data import test_secret, test_data
 from app import settings
@@ -44,7 +44,7 @@ class TestResponseProcessor(unittest.TestCase):
 class TestDecrypt(unittest.TestCase):
 
     def test_decrypt_with_bad_token(self):
-        with self.assertRaises(BadMessageError):
+        with self.assertRaises(InvalidToken):
             processor._decrypt("xbxhsbhxbsahb", test_secret)
 
     def test_decrypt_with_good_token(self):
