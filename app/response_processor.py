@@ -22,11 +22,17 @@ class RetryableError(Exception):
     pass
 
 
+class DecryptError(Exception):
+    # Can't even decrypt the message. May be corrupt or keys may be out of step.
+    pass
+
+
 class ResponseProcessor:
 
     def __init__(self, logger):
         self.logger = logger
         self.tx_id = ""
+        # self.quarantine_publisher = QueuePublisher(logger, settings.RABBIT_URLS, settings.RABBIT_QUARANTINE_QUEUE)
 
     def process(self, message):
 
@@ -35,7 +41,7 @@ class ResponseProcessor:
             message = self._decrypt(token=message, secret=settings.SDX_RECEIPT_RRM_SECRET)
         except Exception as e:
             self.logger.exception("Exception decrypting message", exception=e)
-            raise BadMessageError("Failed to decrypt message")
+            raise DecryptError("Failed to decrypt")
 
         # Validate
         decrypted_json = loads(message)

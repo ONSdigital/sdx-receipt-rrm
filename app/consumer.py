@@ -1,8 +1,9 @@
 import logging
 from structlog import wrap_logger
 from app.async_consumer import AsyncConsumer
-from app.response_processor import ResponseProcessor, BadMessageError, RetryableError
+from app.response_processor import ResponseProcessor, BadMessageError, RetryableError, DecryptError
 from app import settings
+from app.queue_publisher import QueuePublisher
 import sys
 
 logging.basicConfig(level=settings.LOGGING_LEVEL, format=settings.LOGGING_FORMAT)
@@ -21,6 +22,11 @@ def get_delivery_count_from_properties(properties):
 
 
 class Consumer(AsyncConsumer):
+
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.quarantine_publisher = QueuePublisher(logger, settings.RABBIT_URLS, settings.RABBIT_QUARANTINE_QUEUE)
+
     def on_message(self, unused_channel, basic_deliver, properties, body):
 
         delivery_count = get_delivery_count_from_properties(properties)
@@ -39,20 +45,20 @@ class Consumer(AsyncConsumer):
             processor.process(body.decode("utf-8"))
             self.acknowledge_message(basic_deliver.delivery_tag, tx_id=processor.tx_id)
 
+        except DecryptError as e:
+            # Throw it into the quarantine queue to be dealt with
+            self.quarantine_publisher.publish_message(body)
+            self.reject_message(basic_deliver.delivery_tag, tx_id=processor.tx_id)
+            logger.error("Bad decrypt - quarantining", exception=e, tx_id=processor.tx_id, delivery_count=delivery_count)
+
         except BadMessageError as e:
             # If it's a bad message then we have to reject it
-            logger.error("ResponseProcessor failed - bad message - rejecting", tx_id=processor.tx_id, delivery_count=delivery_count)
             self.reject_message(basic_deliver.delivery_tag, tx_id=processor.tx_id)
+            logger.error("Bad message - rejected", exception=e, tx_id=processor.tx_id, delivery_count=delivery_count)
 
-        except RetryableError as e:
-            logger.error("ResponseProcessor failed - nack for retry", exception=e, tx_id=processor.tx_id, delivery_count=delivery_count)
+        except (RetryableError, Exception) as e:
             self.nack_message(basic_deliver.delivery_tag, tx_id=processor.tx_id)
-
-        except Exception as e:
-            # We don't know what happened but we'll be kind and allow a retry as
-            # it's more than likely a local problem rather than a bad message
-            logger.error("ResponseProcessor failed - unexpected - nack for retry", exception=e, tx_id=processor.tx_id, delivery_count=delivery_count)
-            self.nack_message(basic_deliver.delivery_tag, tx_id=processor.tx_id)
+            logger.error("Failed to process - nack'd for retry", exception=e, tx_id=processor.tx_id, delivery_count=delivery_count)
 
 
 def main():

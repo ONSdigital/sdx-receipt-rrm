@@ -13,6 +13,7 @@ RECEIPT_USER = os.getenv("RECEIPT_USER", "")
 RECEIPT_PASS = os.getenv("RECEIPT_PASS", "")
 
 RABBIT_QUEUE = os.getenv('RABBITMQ_QUEUE', 'rrm_receipt')
+RABBIT_QUARANTINE_QUEUE = os.getenv('RABBITMQ_QUEUE', 'rrm_receipt_quarantine')
 RABBIT_EXCHANGE = os.getenv('RABBITMQ_EXCHANGE', 'message')
 
 SDX_RECEIPT_RRM_SECRET = os.getenv("SDX_RECEIPT_RRM_SECRET")
