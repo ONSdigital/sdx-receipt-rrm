@@ -49,16 +49,16 @@ class Consumer(AsyncConsumer):
             # Throw it into the quarantine queue to be dealt with
             self.quarantine_publisher.publish_message(body)
             self.reject_message(basic_deliver.delivery_tag, tx_id=processor.tx_id)
-            logger.error("Bad decrypt - quarantining", exception=e, tx_id=processor.tx_id, delivery_count=delivery_count)
+            logger.error("Bad decrypt", action="quarantined", exception=e, tx_id=processor.tx_id, delivery_count=delivery_count)
 
         except BadMessageError as e:
             # If it's a bad message then we have to reject it
             self.reject_message(basic_deliver.delivery_tag, tx_id=processor.tx_id)
-            logger.error("Bad message - rejected", exception=e, tx_id=processor.tx_id, delivery_count=delivery_count)
+            logger.error("Bad message", action="rejected", exception=e, tx_id=processor.tx_id, delivery_count=delivery_count)
 
         except (RetryableError, Exception) as e:
             self.nack_message(basic_deliver.delivery_tag, tx_id=processor.tx_id)
-            logger.error("Failed to process - nack'd for retry", exception=e, tx_id=processor.tx_id, delivery_count=delivery_count)
+            logger.error("Failed to process", actioon="nack", exception=e, tx_id=processor.tx_id, delivery_count=delivery_count)
 
 
 def main():

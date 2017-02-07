@@ -32,7 +32,6 @@ class ResponseProcessor:
     def __init__(self, logger):
         self.logger = logger
         self.tx_id = ""
-        # self.quarantine_publisher = QueuePublisher(logger, settings.RABBIT_URLS, settings.RABBIT_QUARANTINE_QUEUE)
 
     def process(self, message):
 
@@ -40,7 +39,7 @@ class ResponseProcessor:
         try:
             message = self._decrypt(token=message, secret=settings.SDX_RECEIPT_RRM_SECRET)
         except Exception as e:
-            self.logger.exception("Exception decrypting message", exception=e)
+            self.logger.error("Exception decrypting message", exception=e)
             raise DecryptError("Failed to decrypt")
 
         # Validate
@@ -97,7 +96,7 @@ class ResponseProcessor:
             elif res.status_code != 200 and res.status_code != 201:
                 # Endpoint may be temporarily down
                 self.logger.error("Bad response from endpoint", request_url=res.url, status_code=res.status_code)
-                raise RetryableError("Failure to send receipt")
+                raise RetryableError("Bad response from endpoint")
 
             else:
                 self.logger.info("Returned from service", request_url=res.url, status_code=res.status_code)
