@@ -15,7 +15,7 @@ RECEIPT_PATH = os.getenv("RECEIPT_PATH", "reportingunits")
 RECEIPT_USER = os.getenv("RECEIPT_USER", "")
 RECEIPT_PASS = os.getenv("RECEIPT_PASS", "")
 
-RABBIT_QUEUE = os.getenv('RABBITMQ_QUEUE', 'rrm_receipt')
+RABBIT_QUEUE = os.getenv('RECEIPT_RRM_QUEUE', 'rrm_receipt')
 RABBIT_EXCHANGE = os.getenv('RABBITMQ_EXCHANGE', 'message')
 
 RABBIT_URL = 'amqp://{user}:{password}@{hostname}:{port}/{vhost}'.format(
