@@ -58,7 +58,7 @@ class Consumer(AsyncConsumer):
 
         except (RetryableError, Exception) as e:
             self.nack_message(basic_deliver.delivery_tag, tx_id=processor.tx_id)
-            logger.error("Failed to process", actioon="nack", exception=e, tx_id=processor.tx_id, delivery_count=delivery_count)
+            logger.error("Failed to process", action="nack", exception=e, tx_id=processor.tx_id, delivery_count=delivery_count)
 
 
 def main():
