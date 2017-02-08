@@ -1,5 +1,4 @@
 from json import loads
-import os
 
 from app import receipt
 from app import settings
@@ -9,130 +8,100 @@ from cryptography.fernet import Fernet
 from requests.packages.urllib3.exceptions import MaxRetryError
 
 
+class BadMessageError(Exception):
+    # A bad message is broken in some way that will never be accepted by
+    # the endpoing and as such should be rejected (it will still be logged
+    # and stored so no data is lost)
+    pass
+
+
+class RetryableError(Exception):
+    # A retryable error is apparently transient and may be due to temporary
+    # network issues or misconfiguration, but the message is valid and should
+    # be retried
+    pass
+
+
+class DecryptError(Exception):
+    # Can't even decrypt the message. May be corrupt or keys may be out of step.
+    pass
+
+
 class ResponseProcessor:
 
-    @staticmethod
-    def options():
-        rv = {}
-        try:
-            rv["secret"] = os.getenv("SDX_RECEIPT_RRM_SECRET").encode("ascii")
-        except Exception:
-            # No secret in env
-            pass
-        return rv
+    def __init__(self, logger):
+        self.logger = logger
+        self.tx_id = ""
 
-    @staticmethod
-    def encrypt(message, secret):
-        """
-        Message may be a string or bytes.
-        Secret key must be 32 url-safe base64-encoded bytes.
+    def process(self, message):
 
-        """
+        # Decrypt
         try:
-            f = Fernet(secret)
-        except ValueError:
-            return None
-        try:
-            token = f.encrypt(message)
-        except TypeError:
-            token = f.encrypt(message.encode("utf-8"))
-        return token
+            message = self._decrypt(token=message, secret=settings.SDX_RECEIPT_RRM_SECRET)
+        except Exception as e:
+            self.logger.error("Exception decrypting message", exception=e)
+            raise DecryptError("Failed to decrypt")
 
-    @staticmethod
-    def decrypt(token, secret):
-        """
-        Secret key must be 32 url-safe base64-encoded bytes or string
+        # Validate
+        decrypted_json = loads(message)
+        self._validate(decrypted_json)
 
-        Returned value is a string.
-        """
-        try:
-            f = Fernet(secret)
-        except ValueError:
-            return None
+        # Encode
+        xml = self._encode(decrypted_json)
+
+        # Send
+        self._send_receipt(decrypted_json, xml)
+
+        return
+
+    def _decrypt(self, token, secret):
+        f = Fernet(secret)
         try:
             message = f.decrypt(token)
         except TypeError:
             message = f.decrypt(token.encode("utf-8"))
         return message.decode("utf-8")
 
-    def __init__(self, logger):
-        self.logger = logger
-        self.tx_id = ""
-        if settings.RECEIPT_HOST == "skip":
-            self.skip_receipt = True
-        else:
-            self.skip_receipt = False
+    def _validate(self, decrypted):
+        if 'tx_id' not in decrypted:
+            raise BadMessageError("Missing tx_id")
+        self.logger.bind(tx_id=decrypted['tx_id'])
 
-    def process(self, message, **kwargs):
-        try:
-            secret = kwargs.pop("secret")
-            message = ResponseProcessor.decrypt(message, secret=secret)
-        except KeyError:
-            # No secret defined; message is plaintext
-            pass
+        if "metadata" not in decrypted:
+            raise BadMessageError("Missing metadata")
+        return
 
-        decrypted_json = loads(message)
-        if "metadata" not in decrypted_json:
-            return False
-
-        metadata = decrypted_json['metadata']
-        self.logger = self.logger.bind(user_id=metadata['user_id'], ru_ref=metadata['ru_ref'])
-
-        if 'tx_id' in decrypted_json:
-            self.tx_id = decrypted_json['tx_id']
-            self.logger = self.logger.bind(tx_id=self.tx_id)
-
-        receipt_ok = self.send_receipt(decrypted_json)
-        if not receipt_ok:
-            return False
-        else:
-            return True
-
-    def send_receipt(self, decrypted_json):
-        if self.skip_receipt:
-            self.logger.debug("Skipping sending receipt to RRM")
-            return True
-        else:
-            self.logger.debug("Sending receipt to RRM")
-
-        endpoint = receipt.get_receipt_endpoint(decrypted_json)
-        if endpoint is None:
-            return False
-
-        xml = receipt.get_receipt_xml(decrypted_json)
+    def _encode(self, decrypted):
+        xml = receipt.get_receipt_xml(decrypted)
         if xml is None:
-            return False
+            raise BadMessageError("Unable to generate xml from message")
+        return xml
+
+    def _send_receipt(self, decrypted, xml):
+        endpoint = receipt.get_receipt_endpoint(decrypted)
+        if endpoint is None:
+            raise BadMessageError("Unable to determine delivery endpoint from message")
 
         headers = receipt.get_receipt_headers()
+        auth = (settings.RECEIPT_USER, settings.RECEIPT_PASS)
 
-        response = self.remote_call(
-            endpoint,
-            data=xml.encode("utf-8"),
-            headers=headers,
-            verify=False,
-            auth=(settings.RECEIPT_USER, settings.RECEIPT_PASS))
-        return self.response_ok(response)
-
-    def remote_call(self, request_url, json=None, data=None, headers=None, verify=True, auth=None):
         try:
-            self.logger.info("Calling service", request_url=request_url)
-            r = None
+            self.logger.info("Calling service", request_url=endpoint)
+            res = session.post(endpoint, data=xml, headers=headers, verify=False, auth=auth)
 
-            if data:
-                r = session.post(request_url, data=data, headers=headers, verify=verify, auth=auth)
+            if res.status_code == 400:
+                self.logger.error("Receipt rejected by endpoint", request_url=res.url, status_code=400)
+                raise BadMessageError("Failure to send receipt")
+
+            elif res.status_code != 200 and res.status_code != 201:
+                # Endpoint may be temporarily down
+                self.logger.error("Bad response from endpoint", request_url=res.url, status_code=res.status_code)
+                raise RetryableError("Bad response from endpoint")
+
             else:
-                r = session.get(request_url, headers=headers, verify=verify, auth=auth)
-
-            return r
+                self.logger.info("Returned from service", request_url=res.url, status_code=res.status_code)
+                return
 
         except MaxRetryError:
-            self.logger.error("Max retries exceeded (5)", request_url=request_url)
-
-    def response_ok(self, res):
-        if res.status_code == 200 or res.status_code == 201:
-            self.logger.info("Returned from service", request_url=res.url, status_code=res.status_code)
-            return True
-
-        else:
-            self.logger.error("Returned from service", request_url=res.url, status_code=res.status_code)
-            return False
+            self.logger.error("Max retries exceeded (5) attempting to send to endpoint", request_url=endpoint)
+            raise RetryableError("Failure to send receipt")

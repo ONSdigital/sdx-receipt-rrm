@@ -1,4 +1,5 @@
 ### Unreleased
+  - Add explicit ack/nack for messages based on processing success
   - Add support for encrypted queue messages from ``sdx-collect``
   - Add change log
   - Remove reject on max retries. Stops message being rejected if endpoint is down for prolonged period
