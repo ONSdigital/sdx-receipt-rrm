@@ -5,6 +5,7 @@
   - Remove reject on max retries. Stops message being rejected if endpoint is down for prolonged period
   - Update logging to reduce noise and be more consistent, adding queue name to message
   - Add `PREFETCH=1` to rabbit config to address '104 Socket' errors
+  - Update env var for queue name
 
 ### 1.0.0 2016-11-22
   - Initial release
