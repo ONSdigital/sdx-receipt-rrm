@@ -3,7 +3,8 @@ import mock
 import json
 
 from cryptography.fernet import Fernet, InvalidToken
-from app.response_processor import ResponseProcessor, BadMessageError, RetryableError
+from app.response_processor import ResponseProcessor
+from app.helpers.exceptions import BadMessageError, RetryableError
 from tests.test_data import test_secret, test_data
 from app import settings
 

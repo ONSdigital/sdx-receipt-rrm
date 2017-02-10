@@ -1,7 +1,8 @@
 import logging
 from structlog import wrap_logger
 from app.async_consumer import AsyncConsumer
-from app.response_processor import ResponseProcessor, BadMessageError, RetryableError, DecryptError
+from app.response_processor import ResponseProcessor
+from app.helpers.exceptions import DecryptError, BadMessageError, RetryableError
 from app import settings
 from app.queue_publisher import QueuePublisher
 import sys
