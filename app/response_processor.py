@@ -71,7 +71,7 @@ class ResponseProcessor:
         res_logger = self.logger.bind(request_url=endpoint)
 
         try:
-            self.logger.info("Calling service", request_url=endpoint, tx_id=self.tx_id)
+            res_logger.info("Calling service")
             res = session.post(endpoint, data=xml, headers=headers, verify=False, auth=auth)
 
             res_logger = res_logger.bind(stats_code=res.status_code)
