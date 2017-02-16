@@ -7,19 +7,18 @@ from requests.adapters import HTTPAdapter
 LOGGING_FORMAT = "%(asctime)s|%(levelname)s: sdx-receipt-rrm: %(message)s"
 LOGGING_LEVEL = logging.getLevelName(os.getenv('LOGGING_LEVEL', 'DEBUG'))
 
-APP_ROOT = os.path.dirname(os.path.abspath(__file__))
-APP_TMP = os.path.join(APP_ROOT, 'tmp')
-
 RECEIPT_HOST = os.getenv("RECEIPT_HOST", "http://sdx-mock-receipt:5000")
 RECEIPT_PATH = os.getenv("RECEIPT_PATH", "reportingunits")
 RECEIPT_USER = os.getenv("RECEIPT_USER", "")
 RECEIPT_PASS = os.getenv("RECEIPT_PASS", "")
 
-RABBIT_QUEUE = os.getenv('RABBITMQ_QUEUE', 'rrm_receipt')
-RABBIT_DELAY_QUEUE = os.getenv('RABBIT_DELAY_QUEUE', 'rrm_receipt_delay')
+RABBIT_QUARANTINE_QUEUE = os.getenv('RABBITMQ_QUARANTINE_QUEUE', 'rrm_receipt_quarantine')
+RABBIT_QUEUE = os.getenv('RECEIPT_RRM_QUEUE', 'rrm_receipt')
 RABBIT_EXCHANGE = os.getenv('RABBITMQ_EXCHANGE', 'message')
-QUEUE_RETRY_DELAY_IN_MS = 20000
-QUEUE_MAX_MESSAGE_DELIVERIES = 3
+
+SDX_RECEIPT_RRM_SECRET = os.getenv("SDX_RECEIPT_RRM_SECRET")
+if SDX_RECEIPT_RRM_SECRET is not None:
+    SDX_RECEIPT_RRM_SECRET = SDX_RECEIPT_RRM_SECRET.encode("ascii")
 
 RABBIT_URL = 'amqp://{user}:{password}@{hostname}:{port}/{vhost}'.format(
     hostname=os.getenv('RABBITMQ_HOST', 'rabbit'),

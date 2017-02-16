@@ -1,7 +1,7 @@
 import unittest
 import json
 from app import receipt
-from tests.test_data import valid_decrypted, invalid_decrypted
+from tests.test_data import test_data
 import logging
 
 logging.disable(logging.CRITICAL)
@@ -40,14 +40,14 @@ class TestReceipt(unittest.TestCase):
         self.assertEqual(statistical_unit_id, ru_ref)
 
     def test_receipt_endpoint_valid_json(self):
-        decrypted_json = json.loads(valid_decrypted)
+        decrypted_json = json.loads(test_data['valid'])
         endpoint = receipt.get_receipt_endpoint(decrypted_json)
         expected = "http://sdx-mock-receipt:5000/reportingunits/12345678901/collectionexercises/hfjdskf/receipts"
 
         self.assertEqual(endpoint, expected)
 
     def test_receipt_endpoint_invalid_json(self):
-        decrypted_json = json.loads(invalid_decrypted)
+        decrypted_json = json.loads(test_data['invalid'])
         endpoint = receipt.get_receipt_endpoint(decrypted_json)
 
         self.assertEqual(endpoint, None)
@@ -58,14 +58,14 @@ class TestReceipt(unittest.TestCase):
         self.assertEqual(headers['Content-Type'], "application/vnd.collections+xml")
 
     def test_render_xml_valid_json_txid(self):
-        decrypted_json = json.loads(valid_decrypted)
+        decrypted_json = json.loads(test_data['valid'])
         output_xml = receipt.get_receipt_xml(decrypted_json)
         expected_xml = get_file_as_string("./tests/xml/receipt_txid.xml")
 
         self.assertEqual(output_xml, expected_xml)
 
     def test_render_xml_valid_json_no_txid(self):
-        decrypted_json = json.loads(valid_decrypted)
+        decrypted_json = json.loads(test_data['valid'])
         del decrypted_json['tx_id']
 
         output_xml = receipt.get_receipt_xml(decrypted_json)

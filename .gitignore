@@ -3,5 +3,10 @@ tests/__pycache__/
 __pycache__
 logs/
 *.pyc
-.idea/
+.Python
+bin/
+lib/
+include/
+pip-selfcheck.json
 venv/
+.idea/
