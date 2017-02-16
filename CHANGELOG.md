@@ -1,4 +1,6 @@
 ### Unreleased
+
+### 2.0.0 2017-02-16
   - Add explicit ack/nack for messages based on processing success
   - Add support for encrypted queue messages from ``sdx-collect``
   - Add change log
