@@ -34,7 +34,6 @@ class AsyncConsumer(object):
         self._closing = False
         self._consumer_tag = None
         self._url = None
-        self._stopped = False
 
     def connect(self):
         """This method connects to RabbitMQ, returning the connection handle.
@@ -47,7 +46,7 @@ class AsyncConsumer(object):
         count = 1
         no_of_servers = len(settings.RABBIT_URLS)
 
-        while not self._stopped:
+        while True:
             server_choice = (count % no_of_servers) - 1
             self._url = settings.RABBIT_URLS[server_choice]
 
@@ -116,6 +115,9 @@ class AsyncConsumer(object):
 
             # Create a new connection
             self._connection = self.connect()
+
+            # There is now a new connection, needs a new ioloop to run
+            self._connection.ioloop.start()
 
     def add_on_channel_close_callback(self):
         """This method tells pika to call the on_channel_closed method if
@@ -357,5 +359,5 @@ class AsyncConsumer(object):
         logger.info('Stopping')
         self._closing = True
         self.stop_consuming()
-        self._stopped = True
+        self._connection.ioloop.start()
         logger.info('Stopped')
