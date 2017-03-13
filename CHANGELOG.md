@@ -1,4 +1,5 @@
 ### Unreleased
+  - Log version number on startup
   - Align async consumer with sdx-receipt-ctp
 
 ### 2.0.0 2017-02-16
