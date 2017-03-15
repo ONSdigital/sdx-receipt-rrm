@@ -3,4 +3,4 @@ from app import settings
 
 logging.basicConfig(level=settings.LOGGING_LEVEL, format=settings.LOGGING_FORMAT)
 
-__version__ = "2.0.0"
+__version__ = "2.1.0"
