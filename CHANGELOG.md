@@ -1,7 +1,8 @@
 ### Unreleased
   - Log version number on startup
   - Align async consumer with sdx-receipt-ctp
-
+  - Amend `stats_code` to 'status' in response_processor for SDX logging
+  
 ### 2.0.0 2017-02-16
   - Add explicit ack/nack for messages based on processing success
   - Add support for encrypted queue messages from ``sdx-collect``

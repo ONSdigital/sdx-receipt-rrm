@@ -74,7 +74,7 @@ class ResponseProcessor:
             res_logger.info("Calling service")
             res = session.post(endpoint, data=xml, headers=headers, verify=False, auth=auth)
 
-            res_logger = res_logger.bind(stats_code=res.status_code)
+            res_logger = res_logger.bind(status=res.status_code)
 
             if res.status_code == 400:
                 res_logger.error("Receipt rejected by endpoint")
