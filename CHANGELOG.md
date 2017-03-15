@@ -1,5 +1,6 @@
 ### Unreleased
   - Align async consumer with sdx-receipt-ctp
+  - Add the service being called to `calling service` logging message
 
 ### 2.0.0 2017-02-16
   - Add explicit ack/nack for messages based on processing success
