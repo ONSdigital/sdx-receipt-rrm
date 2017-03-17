@@ -1,5 +1,5 @@
 ### Unreleased
-  
+  - Add the service being called to `calling service` logging message
 
 ### 2.1.0 2017-03-15
   - Log version number on startup
