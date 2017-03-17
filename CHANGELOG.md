@@ -1,4 +1,7 @@
 ### Unreleased
+  
+
+### 2.1.0 2017-03-15
   - Log version number on startup
   - Align async consumer with sdx-receipt-ctp
   - Amend `stats_code` to 'status' in response_processor for SDX logging
