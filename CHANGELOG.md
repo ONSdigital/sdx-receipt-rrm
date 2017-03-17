@@ -1,4 +1,8 @@
 ### Unreleased
+  
+
+### 2.1.0 2017-03-15
+  - Log version number on startup
   - Align async consumer with sdx-receipt-ctp
   - Add the service being called to `calling service` logging message
 
