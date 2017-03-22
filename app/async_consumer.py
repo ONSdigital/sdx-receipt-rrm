@@ -51,7 +51,7 @@ class AsyncConsumer(object):
             self._url = settings.RABBIT_URLS[server_choice]
 
             try:
-                logger.info('Connecting', amqp_url=self._url, attempt=count)
+                logger.info('Connecting', attempt=count)
                 return pika.SelectConnection(pika.URLParameters(self._url),
                                              self.on_connection_open,
                                              stop_ioloop_on_close=False)
