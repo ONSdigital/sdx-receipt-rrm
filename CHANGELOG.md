@@ -1,5 +1,7 @@
 ### Unreleased
   - Add the service being called to `calling service` logging message
+  
+### 2.1.1 2017-03-22
   - Remove the Rabbit URL from logging message
 
 ### 2.1.0 2017-03-15
