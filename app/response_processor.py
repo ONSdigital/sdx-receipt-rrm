@@ -71,7 +71,7 @@ class ResponseProcessor:
         res_logger = self.logger.bind(request_url=endpoint)
 
         try:
-            res_logger.info("Calling service", service="SDX-RECEIPT-RRM")
+            res_logger.info("Calling external receipting service", service="External receipt service")
             res = session.post(endpoint, data=xml, headers=headers, verify=False, auth=auth)
 
             res_logger = res_logger.bind(status=res.status_code)
