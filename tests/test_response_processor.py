@@ -22,9 +22,10 @@ def encrypt(plain):
 
 
 class MockResponse:
-    def __init__(self, status):
+    def __init__(self, status, content=None):
         self.status_code = status
         self.url = ""
+        self.content = ""
 
 
 class TestResponseProcessor(unittest.TestCase):
@@ -95,4 +96,18 @@ class TestSend(unittest.TestCase):
         with self.assertRaises(BadMessageError):
             with mock.patch('app.response_processor.session.post') as session_mock:
                 session_mock.return_value = MockResponse(status=400)
+                processor._send_receipt(self.decrypted, self.xml)
+
+    def test_with_404_response(self):
+        file_path = './tests/xml/receipt_incorrect_ru_ce.xml'
+        with open(file_path, 'r') as cm:
+            xml = cm.read()
+
+        with mock.patch('app.response_processor.session.post') as session_mock:
+            session_mock.return_value = MockResponse(status=404, content=xml)
+            processor._send_receipt(self.decrypted, self.xml)
+
+        with self.assertRaises(BadMessageError):
+            with mock.patch('app.response_processor.session.post') as session_mock:
+                session_mock.return_value = MockResponse(status=404)
                 processor._send_receipt(self.decrypted, self.xml)
