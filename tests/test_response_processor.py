@@ -138,13 +138,3 @@ class TestSend(unittest.TestCase):
 
         with self.assertRaises(BadMessageError):
             resp = processor._send_receipt(self.decrypted, self.xml)
-
-"""
-    def test_with_404_response_ru_ce_incorrect(self):
-        file_path = './tests/xml/receipt_incorrect_ru_ce.xml'
-        tree = etree.parse(file_path)
-        root = tree.getroot()
-        tree_as_str = etree.tostring(root, encoding='utf-8')
-        endpoint = receipt.get_receipt_endpoint(self.decrypted)
-        processor._send_receipt(self.decrypted, self.xml)
-"""
