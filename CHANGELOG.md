@@ -1,5 +1,5 @@
 ### Unreleased
-  - Route receipt 404 errors correclty
+  - Route receipt 404 errors correctly
   - Add the service being called to `calling service` logging message
   
 ### 2.1.1 2017-03-22
