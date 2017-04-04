@@ -1,4 +1,5 @@
 from json import loads
+import xml.etree.ElementTree as etree
 
 from cryptography.fernet import Fernet
 from requests.packages.urllib3.exceptions import MaxRetryError
@@ -80,6 +81,18 @@ class ResponseProcessor:
                 res_logger.error("Receipt rejected by endpoint")
                 raise BadMessageError("Failure to send receipt")
 
+            elif res.status_code == 404:
+                namespaces = {'error': 'http://ns.ons.gov.uk/namespaces/resources/error'}
+                tree = etree.fromstring(res.content)
+                element = tree.find('error:message', namespaces).text
+
+                if '1009' in element:
+                    res_logger.error("Receipt rejected by endpoint", error=1009)
+                    raise BadMessageError("Failure to send receipt")
+                else:
+                    res_logger.error("Bad response from endpoint")
+                    raise RetryableError("Bad response from endpoint")
+
             elif res.status_code != 200 and res.status_code != 201:
                 # Endpoint may be temporarily down
                 res_logger.error("Bad response from endpoint")
@@ -87,7 +100,8 @@ class ResponseProcessor:
 
             else:
                 res_logger.info("Sent receipt")
-                return
+
+            return res
 
         except MaxRetryError:
             res_logger.error("Max retries exceeded (5) attempting to send to endpoint")
