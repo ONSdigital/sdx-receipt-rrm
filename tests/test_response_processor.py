@@ -1,11 +1,14 @@
 import unittest
 import mock
 import json
+import xml.etree.cElementTree as etree
 
 from cryptography.fernet import Fernet, InvalidToken
+import responses
 from app.response_processor import ResponseProcessor
 from app.helpers.exceptions import BadMessageError, RetryableError
 from tests.test_data import test_secret, test_data
+from app import receipt
 from app import settings
 
 import logging
@@ -98,16 +101,51 @@ class TestSend(unittest.TestCase):
                 session_mock.return_value = MockResponse(status=400)
                 processor._send_receipt(self.decrypted, self.xml)
 
-    def test_with_404_response(self):
-        file_path = './tests/xml/receipt_incorrect_ru_ce.xml'
-        with open(file_path, 'r') as cm:
-            xml = cm.read()
 
-        with mock.patch('app.response_processor.session.post') as session_mock:
-            session_mock.return_value = MockResponse(status=404, content=xml)
-            processor._send_receipt(self.decrypted, self.xml)
+    @responses.activate
+    def test_with_404_response(self):
+        """Test that a 404 response with no 1009 error in the response XMl continues
+           execution assuming a transient error.
+        """
+        etree.register_namespace('', "http://ns.ons.gov.uk/namespaces/resources/error")
+        file_path = './tests/xml/receipt_404.xml'
+        tree = etree.parse(file_path)
+        root = tree.getroot()
+        tree_as_str = etree.tostring(root, encoding='utf-8')
+        endpoint = receipt.get_receipt_endpoint(self.decrypted)
+
+        responses.add(responses.POST, endpoint,
+                      body=tree_as_str, status=404,
+                      content_type='application/xml')
+
+        with self.assertRaises(RetryableError):
+            resp = processor._send_receipt(self.decrypted, self.xml)
+
+    @responses.activate
+    def test_with_404_1009_response(self):
+        """Test that a 404 response with a 1009 error in the response XMl raises
+           BadMessage error.
+        """
+        etree.register_namespace('', "http://ns.ons.gov.uk/namespaces/resources/error")
+        file_path = './tests/xml/receipt_incorrect_ru_ce.xml'
+        tree = etree.parse(file_path)
+        root = tree.getroot()
+        tree_as_str = etree.tostring(root, encoding='utf-8')
+        endpoint = receipt.get_receipt_endpoint(self.decrypted)
+
+        responses.add(responses.POST, endpoint,
+                      body=tree_as_str, status=404,
+                      content_type='application/xml')
 
         with self.assertRaises(BadMessageError):
-            with mock.patch('app.response_processor.session.post') as session_mock:
-                session_mock.return_value = MockResponse(status=404)
-                processor._send_receipt(self.decrypted, self.xml)
+            resp = processor._send_receipt(self.decrypted, self.xml)
+
+"""
+    def test_with_404_response_ru_ce_incorrect(self):
+        file_path = './tests/xml/receipt_incorrect_ru_ce.xml'
+        tree = etree.parse(file_path)
+        root = tree.getroot()
+        tree_as_str = etree.tostring(root, encoding='utf-8')
+        endpoint = receipt.get_receipt_endpoint(self.decrypted)
+        processor._send_receipt(self.decrypted, self.xml)
+"""
