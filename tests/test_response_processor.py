@@ -118,7 +118,7 @@ class TestSend(unittest.TestCase):
                       content_type='application/xml')
 
         with self.assertRaises(RetryableError):
-            resp = processor._send_receipt(self.decrypted, self.xml)
+            resp = processor._send_receipt(self.decrypted, self.xml)  # noqa
 
     @responses.activate
     def test_with_404_1009_response(self):
@@ -137,4 +137,4 @@ class TestSend(unittest.TestCase):
                       content_type='application/xml')
 
         with self.assertRaises(BadMessageError):
-            resp = processor._send_receipt(self.decrypted, self.xml)
+            resp = processor._send_receipt(self.decrypted, self.xml)  # noqa
