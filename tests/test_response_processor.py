@@ -25,10 +25,9 @@ def encrypt(plain):
 
 
 class MockResponse:
-    def __init__(self, status, content=None):
+    def __init__(self, status):
         self.status_code = status
         self.url = ""
-        self.content = ""
 
 
 class TestResponseProcessor(unittest.TestCase):
