@@ -101,7 +101,6 @@ class TestSend(unittest.TestCase):
                 session_mock.return_value = MockResponse(status=400)
                 processor._send_receipt(self.decrypted, self.xml)
 
-
     @responses.activate
     def test_with_404_response(self):
         """Test that a 404 response with no 1009 error in the response XMl continues
