@@ -1,11 +1,11 @@
 from json import loads
 
+from cryptography.fernet import Fernet
+from requests.packages.urllib3.exceptions import MaxRetryError
+
 from app import receipt
 from app import settings
 from app.settings import session
-
-from cryptography.fernet import Fernet
-from requests.packages.urllib3.exceptions import MaxRetryError
 from app.helpers.exceptions import DecryptError, BadMessageError, RetryableError
 
 
