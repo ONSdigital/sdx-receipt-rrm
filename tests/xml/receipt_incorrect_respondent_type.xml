@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<error xmlns="http://ns.ons.gov.uk/namespaces/resources/error">
+    <error_id>ff5f1a6a-7f7f-43a9-a82b-5b322c484cff</error_id>
+    <message>1000-Please provide valid receipt information. Input received: Receipt: [receiptType=COMPLETED, respondentId=null, tx_id=x0xxxxx0-00xx-00x0-x0xx-0000x0x00xxx]</message>
+</error>
