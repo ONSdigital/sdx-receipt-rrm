@@ -79,16 +79,26 @@ class ResponseProcessor:
 
             if res.status_code == 400:
                 res_logger.error("Receipt rejected by endpoint")
-                raise BadMessageError("Failure to send receipt")
+                raise BadMessageError("Receipt rejected by endpoint")
 
             elif res.status_code == 404:
                 namespaces = {'error': 'http://ns.ons.gov.uk/namespaces/resources/error'}
                 tree = etree.fromstring(res.content)
                 element = tree.find('error:message', namespaces).text
+                elements = element.split('-')
 
-                if '1009' in element:
-                    res_logger.error("Receipt rejected by endpoint", error=1009)
-                    raise BadMessageError("Failure to send receipt")
+                if elements[0] == '1009':
+                    stat_unit_id = elements[-1].split('statistical_unit_id: ')[-1].split()[0]
+                    collection_exercise_sid = elements[-1].split('collection_exercise_sid: ')[-1].split()[0]
+
+                    res_logger.error("Receipt rejected by endpoint",
+                                     msg="No records were found on the man_ce_sample_map table",
+                                     error=1009,
+                                     stat_unit_id=stat_unit_id,
+                                     collection_exercise_sid=collection_exercise_sid)
+
+                    raise BadMessageError("Receipt rejected by endpoint")
+
                 else:
                     res_logger.error("Bad response from endpoint")
                     raise RetryableError("Bad response from endpoint")
