@@ -1,5 +1,6 @@
 ### Unreleased
   - Add the service being called to `calling service` logging message
+  - Add all environment variables to README
   
 ### 2.1.1 2017-03-22
   - Remove the Rabbit URL from logging message
