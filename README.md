@@ -16,7 +16,7 @@ The main configuration options are listed below:
 | RECEIPT_PASS                    | _none_                         | Password for rmm receipt service
 | RABBIT_QUEUE                    | `rrm_receipt`                  | Incoming queue to read from
 | RABBIT_EXCHANGE                 | `message`                      | RabbitMQ exchange to use
-| RABBIT_QUARANTINE_QUEUE         | `rrm_receipt_quarantine`       | Rbbit quarantine queue
+| RABBIT_QUARANTINE_QUEUE         | `rrm_receipt_quarantine`       | Rabbit quarantine queue
 | SDX_RECEIPT_RRM_SECRET          | _none_                         | Key for decrypting messages from queue. Must be the same as used for ``sdx-collect``
 | LOGGING_LEVEL                   | `DEBUG`                        | Logging sensitivity
 
