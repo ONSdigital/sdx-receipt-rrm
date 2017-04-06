@@ -102,7 +102,7 @@ class TestSend(unittest.TestCase):
 
     @responses.activate
     def test_with_404_response(self):
-        """Test that a 404 response with no 1009 error in the response XMl continues
+        """Test that a 404 response with no 1009 error in the response XML continues
            execution assuming a transient error.
         """
         etree.register_namespace('', "http://ns.ons.gov.uk/namespaces/resources/error")
@@ -121,7 +121,7 @@ class TestSend(unittest.TestCase):
 
     @responses.activate
     def test_with_404_1009_response(self):
-        """Test that a 404 response with a 1009 error in the response XMl raises
+        """Test that a 404 response with a 1009 error in the response XML raises
            BadMessage error.
         """
         etree.register_namespace('', "http://ns.ons.gov.uk/namespaces/resources/error")
