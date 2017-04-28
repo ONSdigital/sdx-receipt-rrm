@@ -7,6 +7,7 @@ from app.helpers.exceptions import DecryptError, BadMessageError, RetryableError
 from app import settings
 from app.queue_publisher import QueuePublisher
 import sys
+import os
 
 logging.basicConfig(level=settings.LOGGING_LEVEL, format=settings.LOGGING_FORMAT)
 logger = wrap_logger(logging.getLogger(__name__))
@@ -21,6 +22,22 @@ def get_delivery_count_from_properties(properties):
     if properties.headers and 'x-delivery-count' in properties.headers:
         delivery_count = properties.headers['x-delivery-count']
     return delivery_count + 1
+
+
+def check_default_env_vars():
+
+    env_vars = ["LOGGING_LEVEL", "RECEIPT_HOST", "RECEIPT_PATH", "RECEIPT_USER",
+                "RECEIPT_PASS", "RABBITMQ_QUARANTINE_QUEUE", "RECEIPT_RRM_QUEUE", "RABBITMQ_EXCHANGE",
+                "SDX_RECEIPT_RRM_SECRET", "RABBITMQ_HOST", "RABBITMQ_HOST2", "RABBITMQ_PORT",
+                "RABBITMQ_PORT2", "RABBITMQ_DEFAULT_USER", "RABBITMQ_DEFAULT_PASS", "RABBITMQ_DEFAULT_VHOST"]
+
+    for i in env_vars:
+        if os.getenv(i) is None:
+            logger.error("No ", i, "env var supplied")
+            missing_env_var = True
+
+    if missing_env_var is True:
+        sys.exit(1)
 
 
 class Consumer(AsyncConsumer):
@@ -66,9 +83,7 @@ class Consumer(AsyncConsumer):
 def main():
     logger.info("Starting consumer", version=__version__)
 
-    if settings.SDX_RECEIPT_RRM_SECRET is None:
-        logger.error("No SDX_RECEIPT_RRM_SECRET env var supplied")
-        sys.exit(1)
+    check_default_env_vars()
 
     consumer = Consumer()
     try:
