@@ -18,6 +18,9 @@ logger = wrap_logger(logging.getLogger(__name__))
 processor = ResponseProcessor(logger)
 settings.SDX_RECEIPT_RRM_SECRET = test_secret
 
+settings.RECEIPT_HOST = "http://sdx-mock-receipt:5000"
+settings.RECEIPT_PATH = "reportingunits"
+
 
 def encrypt(plain):
     f = Fernet(test_secret)

@@ -8,7 +8,7 @@
 
 The main configuration options are listed below:
 
-| Environment Variable            | Default                        | Description
+| Environment Variable            | Example                        | Description
 |---------------------------------|--------------------------------|--------------
 | RECEIPT_HOST                    | `http://sdx-mock-receipt:5000` | Host for rrm receipt service
 | RECEIPT_PATH                    | `reportingunits`               | Path for rrm receipt service
@@ -19,4 +19,10 @@ The main configuration options are listed below:
 | RABBIT_QUARANTINE_QUEUE         | `rrm_receipt_quarantine`       | Rabbit quarantine queue
 | SDX_RECEIPT_RRM_SECRET          | _none_                         | Key for decrypting messages from queue. Must be the same as used for ``sdx-collect``
 | LOGGING_LEVEL                   | `DEBUG`                        | Logging sensitivity
-
+| RABBITMQ_HOST                   | `rabbit`                       | Rabbit host
+| RABBITMQ_HOST2                  | `rabbit`                       | Rabbit host
+| RABBITMQ_PORT                   | `1234`                         | Rabbit port
+| RABBITMQ_PORT2                  | `rabbit`                       | Rabbit port
+| RABBITMQ_DEFAULT_USER           | `rabbit`                       | Rabbit user
+| RABBITMQ_DEFAULT_PASS           | `rabbit`                       | Rabbit password
+| RABBITMQ_DEFAULT_VHOST          | `%2f`                          | Rabbit vhost
