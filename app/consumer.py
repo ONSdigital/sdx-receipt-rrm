@@ -32,10 +32,12 @@ def _get_value(key):
 
 def check_default_env_vars():
 
-    env_vars = ["LOGGING_LEVEL", "RECEIPT_HOST", "RECEIPT_PATH", "RECEIPT_USER",
+    env_vars = ["RECEIPT_HOST", "RECEIPT_PATH", "RECEIPT_USER",
                 "RECEIPT_PASS", "RABBITMQ_QUARANTINE_QUEUE", "RECEIPT_RRM_QUEUE", "RABBITMQ_EXCHANGE",
                 "SDX_RECEIPT_RRM_SECRET", "RABBITMQ_HOST", "RABBITMQ_HOST2", "RABBITMQ_PORT",
                 "RABBITMQ_PORT2", "RABBITMQ_DEFAULT_USER", "RABBITMQ_DEFAULT_PASS", "RABBITMQ_DEFAULT_VHOST"]
+
+    missing_env_var = False
 
     for i in env_vars:
         try:
