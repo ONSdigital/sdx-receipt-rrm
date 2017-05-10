@@ -2,6 +2,7 @@
   - Route receipt 404 errors correctly
   - Add the service being called to `calling service` logging message
   - Add all environment variables to README
+  - Correct license attribution
   
 ### 2.1.1 2017-03-22
   - Remove the Rabbit URL from logging message

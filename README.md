@@ -20,3 +20,8 @@ The main configuration options are listed below:
 | SDX_RECEIPT_RRM_SECRET          | _none_                         | Key for decrypting messages from queue. Must be the same as used for ``sdx-collect``
 | LOGGING_LEVEL                   | `DEBUG`                        | Logging sensitivity
 
+### License
+
+Copyright © 2016, Office for National Statistics (https://www.ons.gov.uk)
+
+Released under MIT license, see [LICENSE](LICENSE) for details.
