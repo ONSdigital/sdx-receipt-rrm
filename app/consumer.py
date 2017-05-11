@@ -24,30 +24,9 @@ def get_delivery_count_from_properties(properties):
     return delivery_count + 1
 
 
-def _get_value(key):
-    value = os.getenv(key)
-    if not value:
-        raise ValueError("No value set for " + key)
-
-
-def check_default_env_vars():
-
-    env_vars = ["RECEIPT_HOST", "RECEIPT_PATH", "RECEIPT_USER",
-                "RECEIPT_PASS", "RABBITMQ_QUARANTINE_QUEUE", "RECEIPT_RRM_QUEUE", "RABBITMQ_EXCHANGE",
-                "SDX_RECEIPT_RRM_SECRET", "RABBITMQ_HOST", "RABBITMQ_HOST2", "RABBITMQ_PORT",
-                "RABBITMQ_PORT2", "RABBITMQ_DEFAULT_USER", "RABBITMQ_DEFAULT_PASS", "RABBITMQ_DEFAULT_VHOST"]
-
-    missing_env_var = False
-
-    for i in env_vars:
-        try:
-            _get_value(i)
-        except ValueError as e:
-            logger.error("Unable to start service", error=e)
-            missing_env_var = True
-
-    if missing_env_var is True:
-        sys.exit(1)
+def check_globals(module):
+    g = {k: v for k, v in vars(module).items() if not k.startswith("_") and k.isupper()}
+    return all(g.values())
 
 
 class Consumer(AsyncConsumer):
