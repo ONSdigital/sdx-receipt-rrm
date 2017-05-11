@@ -7,7 +7,6 @@ from app.helpers.exceptions import DecryptError, BadMessageError, RetryableError
 from app import settings
 from app.queue_publisher import QueuePublisher
 import sys
-import os
 
 logging.basicConfig(level=settings.LOGGING_LEVEL, format=settings.LOGGING_FORMAT)
 logger = wrap_logger(logging.getLogger(__name__))
@@ -72,7 +71,9 @@ class Consumer(AsyncConsumer):
 def main():
     logger.info("Starting consumer", version=__version__)
 
-    check_default_env_vars()
+    if not check_globals(settings):
+        logger.error("Variables missing from environment.")
+        sys.exit(1)
 
     consumer = Consumer()
     try:
