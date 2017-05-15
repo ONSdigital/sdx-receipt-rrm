@@ -23,9 +23,9 @@ def get_delivery_count_from_properties(properties):
     return delivery_count + 1
 
 
-def check_globals(module):
+def bad_globals(module):
     g = {k: v for k, v in vars(module).items() if not k.startswith("_") and k.isupper()}
-    return all(g.values())
+    return [k for k, v in g.items() if v is None]
 
 
 class Consumer(AsyncConsumer):
@@ -71,8 +71,10 @@ class Consumer(AsyncConsumer):
 def main():
     logger.info("Starting consumer", version=__version__)
 
-    if not check_globals(settings):
-        logger.error("Variables missing from environment.")
+    bad = bad_globals(settings)
+    for g in bad:
+        logger.error("{0} missing from environment.".format(g))
+    if bad:
         sys.exit(1)
 
     consumer = Consumer()
