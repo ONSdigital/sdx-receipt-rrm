@@ -3,6 +3,7 @@
   - Add the service being called to `calling service` logging message
   - Add all environment variables to README
   - Correct license attribution
+  - Import async_consumer from sdx-common
   
 ### 2.1.1 2017-03-22
   - Remove the Rabbit URL from logging message

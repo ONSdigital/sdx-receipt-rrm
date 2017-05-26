@@ -1,12 +1,14 @@
-import logging
 from structlog import wrap_logger
-from app import __version__
-from app.async_consumer import AsyncConsumer
-from app.response_processor import ResponseProcessor
-from app.helpers.exceptions import DecryptError, BadMessageError, RetryableError
-from app import settings
-from app.queue_publisher import QueuePublisher
+import logging
 import sys
+
+from sdx.common.async_consumer import AsyncConsumer
+
+from app import __version__
+from app import settings
+from app.helpers.exceptions import DecryptError, BadMessageError, RetryableError
+from app.queue_publisher import QueuePublisher
+from app.response_processor import ResponseProcessor
 
 logging.basicConfig(level=settings.LOGGING_LEVEL, format=settings.LOGGING_FORMAT)
 logger = wrap_logger(logging.getLogger(__name__))
