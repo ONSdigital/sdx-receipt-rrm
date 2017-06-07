@@ -1,5 +1,3 @@
-import logging
-
 from sdx.common.logger_config import logger_initial_config
 
 from app import settings
