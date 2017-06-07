@@ -4,6 +4,26 @@
 
 ``sdx-receipt-rrm`` is a component of the Office for National Statistics (ONS) Survey Data Exchange (SDX) product which sends receipts to RRM.
 
+## Installation
+
+To install, use:
+
+```bash
+make build
+```
+
+To install using local sdx-common repo (requires SDX_HOME environment variable), use:
+
+```bash
+make dev
+```
+
+To run the test suite, use:
+
+```bash
+make test
+```
+
 ## Configuration
 
 The main configuration options are listed below:
