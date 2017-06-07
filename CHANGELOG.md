@@ -1,4 +1,6 @@
 ### Unreleased
+  - Timestamp all logs as UTC
+  - Add common library logging
   - Route receipt 404 errors correctly
   - Add the service being called to `calling service` logging message
   - Add all environment variables to README
