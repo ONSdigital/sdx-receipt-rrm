@@ -1,6 +1,6 @@
 # sdx-receipt-rrm
 
-[![Build Status](https://travis-ci.org/ONSdigital/sdx-receipt-rrm.svg?branch=develop)](https://travis-ci.org/ONSdigital/sdx-receipt-rrm) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/5c860d9fe90049e5ae570ac9c0d6a8e7)](https://www.codacy.com/app/ons-sdc/sdx-receipt-rrm?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ONSdigital/sdx-receipt-rrm&amp;utm_campaign=Badge_Grade)
+[![Build Status](https://travis-ci.org/ONSdigital/sdx-receipt-rrm.svg?branch=develop)](https://travis-ci.org/ONSdigital/sdx-receipt-rrm) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/5c860d9fe90049e5ae570ac9c0d6a8e7)](https://www.codacy.com/app/ons-sdc/sdx-receipt-rrm?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ONSdigital/sdx-receipt-rrm&amp;utm_campaign=Badge_Grade) [![codecov](https://codecov.io/gh/ONSdigital/sdx-receipt-rrm/branch/develop/graph/badge.svg)](https://codecov.io/gh/ONSdigital/sdx-receipt-rrm)
 
 ``sdx-receipt-rrm`` is a component of the Office for National Statistics (ONS) Survey Data Exchange (SDX) product which sends receipts to RRM.
 
