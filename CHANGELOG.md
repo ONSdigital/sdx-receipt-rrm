@@ -6,6 +6,7 @@
   - Add all environment variables to README
   - Add codacy badge
   - Correct license attribution
+  - Add support for codecov to see unit test coverage
 
 ### 2.1.1 2017-03-22
   - Remove the Rabbit URL from logging message
