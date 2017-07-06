@@ -7,6 +7,7 @@
   - Add codacy badge
   - Correct license attribution
   - Add support for codecov to see unit test coverage
+  - Update and pin version of sdx-common to 0.7.0
 
 ### 2.1.1 2017-03-22
   - Remove the Rabbit URL from logging message
