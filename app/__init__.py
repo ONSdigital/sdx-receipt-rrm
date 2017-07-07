@@ -1,6 +1,8 @@
-import logging
+from sdx.common.logger_config import logger_initial_config
+
 from app import settings
 
-logging.basicConfig(level=settings.LOGGING_LEVEL, format=settings.LOGGING_FORMAT)
+logger_initial_config(service_name='sdx-receipt-rrm',
+                      log_level=settings.LOGGING_LEVEL)
 
 __version__ = "2.1.1"
