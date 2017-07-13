@@ -1,7 +1,7 @@
 FROM onsdigital/flask-crypto-queue
 
-ADD app /app
-ADD startup.sh /startup.sh
+COPY app /app
+COPY startup.sh /startup.sh
 
 RUN apt-get update -y
 RUN apt-get upgrade -y
