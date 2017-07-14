@@ -1,4 +1,5 @@
 ### Unreleased
+  - Change all instances of ADD to COPY in Dockerfile
 
 ### 2.2.0 2017-07-10
   - Timestamp all logs as UTC
