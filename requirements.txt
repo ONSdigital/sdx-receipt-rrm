@@ -38,7 +38,9 @@ pika==0.10.0 \
 Jinja2==2.9.6 \
     --hash=sha256:2231bace0dfd8d2bf1e5d7e41239c06c9e0ded46e70cc1094a0aa64b0afeb054 \
     --hash=sha256:ddaa01a212cd6d641401cb01b605f4a4d9f37bfc93043d7f760ec70fb99ff9ff
-sdx-common==0.7.0
+sdx-common==0.7.1 \
+    --hash=sha256:8327955891185d310259998c2a36504abc3ad24d3939397645a9df20b27fd4b8 \
+    --hash=sha256:1dadd670763e0e4ef622db4a4ad84ed302e57143ebc6543f3e832654c8d8ee4e
 six==1.10.0 \
     --hash=sha256:0ff78c403d9bccf5a425a6d31a12aa6b47f1c21ca4dc2573a7e2f32a97335eb1 \
     --hash=sha256:105f8d68616f8248e24bf0e9372ef04d3cc10104f1980f54d57b2ce73a5ad56a
