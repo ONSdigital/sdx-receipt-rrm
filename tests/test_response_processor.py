@@ -8,7 +8,6 @@ import responses
 
 from app.response_processor import ResponseProcessor
 from app.helpers.exceptions import ClientError, DecryptError
-from requests.packages.urllib3.exceptions import MaxRetryError
 from sdc.rabbit.exceptions import QuarantinableError, RetryableError
 from tests.test_data import test_secret, test_data
 from app import receipt
