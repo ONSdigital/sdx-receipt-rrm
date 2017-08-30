@@ -5,8 +5,10 @@ import xml.etree.cElementTree as etree
 
 from cryptography.fernet import Fernet, InvalidToken
 import responses
+
 from app.response_processor import ResponseProcessor
-from app.helpers.exceptions import ClientError
+from app.helpers.exceptions import ClientError, DecryptError
+from requests.packages.urllib3.exceptions import MaxRetryError
 from sdc.rabbit.exceptions import QuarantinableError, RetryableError
 from tests.test_data import test_secret, test_data
 from app import receipt
@@ -44,6 +46,12 @@ class TestResponseProcessor(unittest.TestCase):
             for case in ('invalid', 'missing_metadata'):
                 with self.assertRaises(QuarantinableError):
                     processor.process(encrypt(test_data[case]))
+
+    def test_exception_in_process(self):
+        with mock.patch('app.response_processor.session.post'):
+            with mock.patch('app.response_processor.ResponseProcessor._decrypt', side_effect=Exception):
+                with self.assertRaises(DecryptError):
+                    processor.process(encrypt(test_data['valid']))
 
 
 class TestDecrypt(unittest.TestCase):
@@ -88,6 +96,12 @@ class TestSend(unittest.TestCase):
         with mock.patch('app.response_processor.session.post') as session_mock:
             session_mock.return_value = MockResponse(status=200)
             processor._send_receipt(self.decrypted, self.xml)
+
+    def test_quarantinable_error_if_endpoint_none(self):
+        with mock.patch('app.response_processor.session.post'):
+            with mock.patch('app.receipt.get_receipt_endpoint', return_value=None):
+                with self.assertRaises(QuarantinableError):
+                    processor._send_receipt(self.decrypted, self.xml)
 
     def test_with_500_response(self):
         with self.assertRaises(RetryableError):
