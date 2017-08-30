@@ -1,20 +1,25 @@
 from json import loads
+import logging
 import xml.etree.ElementTree as etree
 
 from cryptography.fernet import Fernet
 from requests.packages.urllib3.exceptions import MaxRetryError
+from sdc.rabbit.exceptions import RetryableError, QuarantinableError
+from structlog import wrap_logger
 
 from app import receipt
 from app import settings
 from app.settings import session
-from app.helpers.exceptions import DecryptError, BadMessageError, RetryableError
+from app.helpers.exceptions import ClientError, DecryptError
+
+logger = wrap_logger(logging.getLogger(__name__))
 
 
 class ResponseProcessor:
 
-    def __init__(self, logger):
+    def __init__(self, logger=logger):
         self.logger = logger
-        self.tx_id = ""
+        self.tx_id = None
 
     def process(self, message):
 
@@ -47,24 +52,31 @@ class ResponseProcessor:
 
     def _validate(self, decrypted):
         if 'tx_id' not in decrypted:
-            raise BadMessageError("Missing tx_id")
+            logger.info('tx_ids from decrypted_json and message header do not match.' +
+                        ' Rejecting message',
+                        decrypted_tx_id=decrypted.get('tx_id'),
+                        message_tx_id=self.tx_id)
+            raise QuarantinableError
         self.tx_id = decrypted['tx_id']
         self.logger = self.logger.bind(tx_id=self.tx_id)
 
         if "metadata" not in decrypted:
-            raise BadMessageError("Missing metadata")
+            logger.info("Missing metadata")
+            raise QuarantinableError
         return
 
     def _encode(self, decrypted):
         xml = receipt.get_receipt_xml(decrypted)
         if xml is None:
-            raise BadMessageError("Unable to generate xml from message")
+            logger.info("Unable to generate xml from message")
+            raise QuarantinableError
         return xml
 
     def _send_receipt(self, decrypted, xml):
         endpoint = receipt.get_receipt_endpoint(decrypted)
         if endpoint is None:
-            raise BadMessageError("Unable to determine delivery endpoint from message")
+            logger.info("Unable to determine delivery endpoint from message")
+            raise QuarantinableError
 
         headers = receipt.get_receipt_headers()
         auth = (settings.RECEIPT_USER, settings.RECEIPT_PASS)
@@ -79,7 +91,7 @@ class ResponseProcessor:
 
             if res.status_code == 400:
                 res_logger.error("Receipt rejected by endpoint")
-                raise BadMessageError("Receipt rejected by endpoint")
+                raise ClientError
 
             elif res.status_code == 404:
                 namespaces = {'error': 'http://ns.ons.gov.uk/namespaces/resources/error'}
@@ -97,16 +109,16 @@ class ResponseProcessor:
                                      stat_unit_id=stat_unit_id,
                                      collection_exercise_sid=collection_exercise_sid)
 
-                    raise BadMessageError("Receipt rejected by endpoint")
+                    raise ClientError
 
                 else:
                     res_logger.error("Bad response from endpoint")
-                    raise RetryableError("Bad response from endpoint")
+                    raise RetryableError
 
             elif res.status_code != 200 and res.status_code != 201:
                 # Endpoint may be temporarily down
                 res_logger.error("Bad response from endpoint")
-                raise RetryableError("Bad response from endpoint")
+                raise RetryableError
 
             else:
                 res_logger.info("Sent receipt")
@@ -115,4 +127,4 @@ class ResponseProcessor:
 
         except MaxRetryError:
             res_logger.error("Max retries exceeded (5) attempting to send to endpoint")
-            raise RetryableError("Failure to send receipt")
+            raise RetryableError
