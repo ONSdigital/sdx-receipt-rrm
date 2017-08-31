@@ -5,8 +5,10 @@ import xml.etree.cElementTree as etree
 
 from cryptography.fernet import Fernet, InvalidToken
 import responses
+
 from app.response_processor import ResponseProcessor
-from app.helpers.exceptions import BadMessageError, RetryableError
+from app.helpers.exceptions import DecryptError
+from sdc.rabbit.exceptions import QuarantinableError, RetryableError
 from tests.test_data import test_secret, test_data
 from app import receipt
 from app import settings
@@ -41,8 +43,14 @@ class TestResponseProcessor(unittest.TestCase):
         with mock.patch('app.response_processor.session.post') as session_mock:
             session_mock.return_value = MockResponse(status=200)
             for case in ('invalid', 'missing_metadata'):
-                with self.assertRaises(BadMessageError):
+                with self.assertRaises(QuarantinableError):
                     processor.process(encrypt(test_data[case]))
+
+    def test_exception_in_process(self):
+        with mock.patch('app.response_processor.session.post'):
+            with mock.patch('app.response_processor.ResponseProcessor._decrypt', side_effect=Exception):
+                with self.assertRaises(DecryptError):
+                    processor.process(encrypt(test_data['valid']))
 
 
 class TestDecrypt(unittest.TestCase):
@@ -63,14 +71,14 @@ class TestValidate(unittest.TestCase):
         processor._validate(json.loads(test_data['valid']))
 
     def test_missing_metadata(self):
-        with self.assertRaises(BadMessageError):
+        with self.assertRaises(QuarantinableError):
             processor._validate(json.loads(test_data['missing_metadata']))
 
 
 class TestEncode(unittest.TestCase):
 
     def test_with_invalid_metadata(self):
-        with self.assertRaises(BadMessageError):
+        with self.assertRaises(QuarantinableError):
             processor._encode({"bad": "thing"})
 
     def test_with_valid_data(self):
@@ -88,6 +96,12 @@ class TestSend(unittest.TestCase):
             session_mock.return_value = MockResponse(status=200)
             processor._send_receipt(self.decrypted, self.xml)
 
+    def test_quarantinable_error_if_endpoint_none(self):
+        with mock.patch('app.response_processor.session.post'):
+            with mock.patch('app.receipt.get_receipt_endpoint', return_value=None):
+                with self.assertRaises(QuarantinableError):
+                    processor._send_receipt(self.decrypted, self.xml)
+
     def test_with_500_response(self):
         with self.assertRaises(RetryableError):
             with mock.patch('app.response_processor.session.post') as session_mock:
@@ -95,7 +109,7 @@ class TestSend(unittest.TestCase):
                 processor._send_receipt(self.decrypted, self.xml)
 
     def test_with_400_response(self):
-        with self.assertRaises(BadMessageError):
+        with self.assertRaises(QuarantinableError):
             with mock.patch('app.response_processor.session.post') as session_mock:
                 session_mock.return_value = MockResponse(status=400)
                 processor._send_receipt(self.decrypted, self.xml)
@@ -135,5 +149,5 @@ class TestSend(unittest.TestCase):
                       body=tree_as_str, status=404,
                       content_type='application/xml')
 
-        with self.assertRaises(BadMessageError):
+        with self.assertRaises(QuarantinableError):
             resp = processor._send_receipt(self.decrypted, self.xml)  # noqa
