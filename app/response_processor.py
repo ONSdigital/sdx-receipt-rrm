@@ -10,7 +10,7 @@ from structlog import wrap_logger
 from app import receipt
 from app import settings
 from app.settings import session
-from app.helpers.exceptions import ClientError, DecryptError
+from app.helpers.exceptions import DecryptError
 
 logger = wrap_logger(logging.getLogger(__name__))
 
@@ -38,10 +38,7 @@ class ResponseProcessor:
         xml = self._encode(decrypted_json)
 
         # Send
-        try:
-            self._send_receipt(decrypted_json, xml)
-        except ClientError:
-            raise QuarantinableError
+        self._send_receipt(decrypted_json, xml)
 
         return
 
@@ -94,7 +91,7 @@ class ResponseProcessor:
 
             if res.status_code == 400:
                 res_logger.error("Receipt rejected by endpoint")
-                raise ClientError
+                raise QuarantinableError
 
             elif res.status_code == 404:
                 namespaces = {'error': 'http://ns.ons.gov.uk/namespaces/resources/error'}
@@ -112,7 +109,7 @@ class ResponseProcessor:
                                      stat_unit_id=stat_unit_id,
                                      collection_exercise_sid=collection_exercise_sid)
 
-                    raise ClientError
+                    raise QuarantinableError
 
                 else:
                     res_logger.error("Bad response from endpoint")

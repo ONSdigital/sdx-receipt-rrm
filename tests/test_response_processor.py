@@ -7,7 +7,7 @@ from cryptography.fernet import Fernet, InvalidToken
 import responses
 
 from app.response_processor import ResponseProcessor
-from app.helpers.exceptions import ClientError, DecryptError
+from app.helpers.exceptions import DecryptError
 from sdc.rabbit.exceptions import QuarantinableError, RetryableError
 from tests.test_data import test_secret, test_data
 from app import receipt
@@ -109,7 +109,7 @@ class TestSend(unittest.TestCase):
                 processor._send_receipt(self.decrypted, self.xml)
 
     def test_with_400_response(self):
-        with self.assertRaises(ClientError):
+        with self.assertRaises(QuarantinableError):
             with mock.patch('app.response_processor.session.post') as session_mock:
                 session_mock.return_value = MockResponse(status=400)
                 processor._send_receipt(self.decrypted, self.xml)
@@ -149,5 +149,5 @@ class TestSend(unittest.TestCase):
                       body=tree_as_str, status=404,
                       content_type='application/xml')
 
-        with self.assertRaises(ClientError):
+        with self.assertRaises(QuarantinableError):
             resp = processor._send_receipt(self.decrypted, self.xml)  # noqa
