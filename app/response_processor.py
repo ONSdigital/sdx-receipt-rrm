@@ -38,7 +38,10 @@ class ResponseProcessor:
         xml = self._encode(decrypted_json)
 
         # Send
-        self._send_receipt(decrypted_json, xml)
+        try:
+            self._send_receipt(decrypted_json, xml)
+        except ClientError:
+            raise QuarantinableError
 
         return
 

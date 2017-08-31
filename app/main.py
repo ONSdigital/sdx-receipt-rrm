@@ -12,7 +12,6 @@ logger = wrap_logger(logging.getLogger(__name__))
 
 
 def run():
-    logging.getLogger("pika").setLevel(logging.INFO)
     logging.getLogger("sdc.rabbit").setLevel(logging.DEBUG)
 
     response_processor = ResponseProcessor(logger)
