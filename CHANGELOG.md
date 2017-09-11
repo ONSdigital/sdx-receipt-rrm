@@ -1,4 +1,6 @@
 ### Unreleased
+
+### 2.4.0 2017-09-11
   - Ensure integrity and version of library dependencies
 
 ### 2.3.0 2017-07-25
