@@ -2,6 +2,7 @@
 
 ### 2.4.0 2017-09-11
   - Ensure integrity and version of library dependencies
+  - Integrate with sdc-rabbit library
 
 ### 2.3.0 2017-07-25
   - Change all instances of ADD to COPY in Dockerfile
