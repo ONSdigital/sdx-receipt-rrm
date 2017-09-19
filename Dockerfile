@@ -2,8 +2,8 @@ FROM onsdigital/flask-crypto-queue
 
 COPY app /app
 COPY startup.sh /startup.sh
-COPY requirements.txt /app/requirements.txt
-COPY Makefile /app/Makefile
+COPY requirements.txt /requirements.txt
+COPY Makefile /Makefile
 
 RUN apt-get update -y
 RUN apt-get upgrade -y
