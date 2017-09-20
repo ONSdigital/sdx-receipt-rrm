@@ -21,7 +21,7 @@ class ResponseProcessor:
         self.logger = logger
         self.tx_id = None
 
-    def process(self, message):
+    def process(self, message, tx_id=None):
 
         # Decrypt
         try:
