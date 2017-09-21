@@ -1,4 +1,5 @@
 ### Unreleased
+  - Removed SDX common clone in docker
   - Ensure integrity and version of library dependencies
   - Integrate with sdc-rabbit library
 
