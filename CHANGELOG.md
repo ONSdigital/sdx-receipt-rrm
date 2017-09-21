@@ -1,7 +1,7 @@
 ### Unreleased
   - Ensure integrity and version of library dependencies
   - Integrate with sdc-rabbit library
-  - Stop rabbit consumer checking for tx_id
+  - Pass tx_id=False to process method to not check if a tx_id is received
 
 ### 2.3.0 2017-07-25
   - Change all instances of ADD to COPY in Dockerfile
