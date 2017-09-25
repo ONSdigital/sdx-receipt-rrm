@@ -21,7 +21,9 @@ class ResponseProcessor:
         self.logger = logger
         self.tx_id = None
 
-    def process(self, message):
+    def process(self, message, tx_id=None):
+
+        self.logger = self.logger.bind(tx_id=tx_id)
 
         # Decrypt
         try:
@@ -39,6 +41,8 @@ class ResponseProcessor:
 
         # Send
         self._send_receipt(decrypted_json, xml)
+
+        self.logger = self.logger.unbind("tx_id")
 
         return
 
@@ -58,7 +62,6 @@ class ResponseProcessor:
                         message_tx_id=self.tx_id)
             raise QuarantinableError
         self.tx_id = decrypted['tx_id']
-        self.logger = self.logger.bind(tx_id=self.tx_id)
 
         if "metadata" not in decrypted:
             logger.info("Missing metadata")

@@ -27,7 +27,8 @@ def run():
         rabbit_queue=app.settings.RABBIT_QUEUE,
         rabbit_urls=app.settings.RABBIT_URLS,
         quarantine_publisher=quarantine_publisher,
-        process=response_processor.process
+        process=response_processor.process,
+        check_tx_id=False
     )
 
     try:
