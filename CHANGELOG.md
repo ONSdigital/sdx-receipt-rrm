@@ -1,10 +1,12 @@
 ### Unreleased
 
-### 2.4.0 2017-09-11
+### 2.5.0 2017-09-25
   - Removed SDX common clone in docker
-  - Ensure integrity and version of library dependencies
   - Integrate with sdc-rabbit library
   - Pass tx_id=False to process method to not check if a tx_id is received
+
+### 2.4.0 2017-09-11
+  - Ensure integrity and version of library dependencies
 
 ### 2.3.0 2017-07-25
   - Change all instances of ADD to COPY in Dockerfile
