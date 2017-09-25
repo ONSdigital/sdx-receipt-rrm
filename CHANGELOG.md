@@ -1,4 +1,6 @@
 ### Unreleased
+
+### 2.4.0 2017-09-11
   - Removed SDX common clone in docker
   - Ensure integrity and version of library dependencies
   - Integrate with sdc-rabbit library
