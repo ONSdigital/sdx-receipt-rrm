@@ -1,20 +1,19 @@
-import unittest
+import logging
 import mock
 import json
+import unittest
 import xml.etree.cElementTree as etree
 
 from cryptography.fernet import Fernet, InvalidToken
 import responses
+from sdc.rabbit.exceptions import QuarantinableError, RetryableError
+from structlog import wrap_logger
 
 from app.response_processor import ResponseProcessor
 from app.helpers.exceptions import DecryptError
-from sdc.rabbit.exceptions import QuarantinableError, RetryableError
-from tests.test_data import test_secret, test_data
 from app import receipt
 from app import settings
-
-import logging
-from structlog import wrap_logger
+from tests.test_data import test_secret, test_data
 
 logger = wrap_logger(logging.getLogger(__name__))
 processor = ResponseProcessor(logger)
@@ -26,31 +25,29 @@ def encrypt(plain):
     return f.encrypt(plain.encode("utf-8"))
 
 
-class MockResponse:
-    def __init__(self, status):
-        self.status_code = status
-        self.url = ""
-
-
 class TestResponseProcessor(unittest.TestCase):
 
+    endpoint = 'http://sdx-mock-receipt:5000/' + \
+               'reportingunits/12345678901/collectionexercises/hfjdskf/receipts'
+
+    @responses.activate
     def test_with_valid_data(self):
-        with mock.patch('app.response_processor.session.post') as session_mock:
-            session_mock.return_value = MockResponse(status=200)
-            processor.process(encrypt(test_data['valid']))
+        responses.add(responses.POST, self.endpoint, status=200)
+        processor.process(encrypt(test_data['valid']))
 
+    @responses.activate
     def test_with_invalid_data(self):
-        with mock.patch('app.response_processor.session.post') as session_mock:
-            session_mock.return_value = MockResponse(status=200)
-            for case in ('invalid', 'missing_metadata'):
-                with self.assertRaises(QuarantinableError):
-                    processor.process(encrypt(test_data[case]))
+        responses.add(responses.POST, self.endpoint, status=200)
+        for case in ('invalid', 'missing_metadata'):
+            with self.assertRaises(QuarantinableError):
+                processor.process(encrypt(test_data[case]))
 
+    @responses.activate
     def test_exception_in_process(self):
-        with mock.patch('app.response_processor.session.post'):
-            with mock.patch('app.response_processor.ResponseProcessor._decrypt', side_effect=Exception):
-                with self.assertRaises(DecryptError):
-                    processor.process(encrypt(test_data['valid']))
+        responses.add(responses.POST, self.endpoint, status=200)
+        with mock.patch('app.response_processor.ResponseProcessor._decrypt', side_effect=Exception):
+            with self.assertRaises(DecryptError):
+                processor.process(encrypt(test_data['valid']))
 
 
 class TestDecrypt(unittest.TestCase):
@@ -87,32 +84,36 @@ class TestEncode(unittest.TestCase):
 
 class TestSend(unittest.TestCase):
 
+    endpoint = 'http://sdx-mock-receipt:5000/' + \
+               'reportingunits/12345678901/collectionexercises/hfjdskf/receipts'
+
     def setUp(self):
         self.decrypted = json.loads(test_data['valid'])
         self.xml = processor._encode(self.decrypted)
 
+    @responses.activate
     def test_with_200_response(self):
-        with mock.patch('app.response_processor.session.post') as session_mock:
-            session_mock.return_value = MockResponse(status=200)
+        responses.add(responses.POST, self.endpoint, status=200)
+        processor._send_receipt(self.decrypted, self.xml)
+
+    @responses.activate
+    def test_quarantinable_error_if_endpoint_none(self):
+        responses.add(responses.POST, self.endpoint, status=200)
+        with mock.patch('app.receipt.get_receipt_endpoint', return_value=None):
+            with self.assertRaises(QuarantinableError):
+                processor._send_receipt(self.decrypted, self.xml)
+
+    @responses.activate
+    def test_with_500_response(self):
+        responses.add(responses.POST, self.endpoint, status=500)
+        with self.assertRaises(RetryableError):
             processor._send_receipt(self.decrypted, self.xml)
 
-    def test_quarantinable_error_if_endpoint_none(self):
-        with mock.patch('app.response_processor.session.post'):
-            with mock.patch('app.receipt.get_receipt_endpoint', return_value=None):
-                with self.assertRaises(QuarantinableError):
-                    processor._send_receipt(self.decrypted, self.xml)
-
-    def test_with_500_response(self):
-        with self.assertRaises(RetryableError):
-            with mock.patch('app.response_processor.session.post') as session_mock:
-                session_mock.return_value = MockResponse(status=500)
-                processor._send_receipt(self.decrypted, self.xml)
-
+    @responses.activate
     def test_with_400_response(self):
+        responses.add(responses.POST, self.endpoint, status=400)
         with self.assertRaises(QuarantinableError):
-            with mock.patch('app.response_processor.session.post') as session_mock:
-                session_mock.return_value = MockResponse(status=400)
-                processor._send_receipt(self.decrypted, self.xml)
+            processor._send_receipt(self.decrypted, self.xml)
 
     @responses.activate
     def test_with_404_response(self):
@@ -151,3 +152,11 @@ class TestSend(unittest.TestCase):
 
         with self.assertRaises(QuarantinableError):
             resp = processor._send_receipt(self.decrypted, self.xml)  # noqa
+
+        @responses.activate
+        def test_network_error(self):
+            """Test that a RetryableError is raised when anything goes wrong at the
+            network level."""
+            responses.add(responses.POST, self.endpoint, body=ConnectionError('error'))
+            with self.assertRaises(RetryableError):
+                processor._send_receipt(self.decrypted, self.xml)
