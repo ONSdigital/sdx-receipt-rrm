@@ -101,6 +101,11 @@ class TestSend(unittest.TestCase):
         responses.add(responses.POST, self.endpoint, status=200)
         processor._send_receipt(self.decrypted, self.xml)
 
+    def test_with_none_endpoint(self):
+        with mock.patch('app.receipt.get_receipt_endpoint', return_value=None):
+            with self.assertRaises(QuarantinableError):
+                processor._send_receipt(self.decrypted, self.xml)
+
     @responses.activate
     def test_quarantinable_error_if_endpoint_none(self):
         responses.add(responses.POST, self.endpoint, status=200)
