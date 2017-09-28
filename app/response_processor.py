@@ -117,8 +117,8 @@ class ResponseProcessor:
             self.logger.info("Calling external receipting service", service="External receipt")
             session = Session()
             retries = Retry(total=self._retries, backoff_factor=0.5)
-            session.mount('http://', HTTPAdapter(max_retries=self._retries))
-            session.mount('https://', HTTPAdapter(max_retries=self._retries))
+            session.mount('http://', HTTPAdapter(max_retries=retries))
+            session.mount('https://', HTTPAdapter(max_retries=retries))
 
             response = session.post(endpoint, data=xml, headers=headers, verify=False, auth=auth)
             self.logger = self.logger.bind(status=response.status_code)
@@ -140,8 +140,8 @@ class ResponseProcessor:
                 self.logger = self.logger.unbind('status')
 
         except MaxRetryError:
-            msg = "Max retries exceeded ({}) attempting to send to RRM endpoint".format(retries)
-            self.logger.error(msg)
+            msg = "Max retries exceeded. Attempting to send to RRM endpoint"
+            self.logger.error(msg, retries=self._retries)
             raise RetryableError
         except ConnectionError:
             self.logger.error("Connection error occured. Retrying")
