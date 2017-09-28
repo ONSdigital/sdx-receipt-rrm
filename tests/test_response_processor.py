@@ -6,6 +6,7 @@ import xml.etree.cElementTree as etree
 
 from cryptography.fernet import Fernet, InvalidToken
 import responses
+from requests.packages.urllib3.exceptions import MaxRetryError
 from sdc.rabbit.exceptions import QuarantinableError, RetryableError
 from structlog import wrap_logger
 
@@ -43,11 +44,10 @@ class TestResponseProcessor(unittest.TestCase):
                 processor.process(encrypt(test_data[case]))
 
     @responses.activate
-    def test_exception_in_process(self):
-        responses.add(responses.POST, self.endpoint, status=200)
-        with mock.patch('app.response_processor.ResponseProcessor._decrypt', side_effect=Exception):
-            with self.assertRaises(DecryptError):
-                processor.process(encrypt(test_data['valid']))
+    def test_max_retries(self):
+        responses.add(responses.POST, self.endpoint, body=MaxRetryError(None, None, None))
+        with self.assertRaises(RetryableError):
+            processor.process(encrypt(test_data['valid']))
 
 
 class TestDecrypt(unittest.TestCase):
@@ -60,6 +60,11 @@ class TestDecrypt(unittest.TestCase):
         token = encrypt(test_data['valid'])
         plain = processor._decrypt(token, test_secret)
         self.assertEqual(plain, test_data['valid'])
+
+    def test_exception_in_process(self):
+        with mock.patch('app.response_processor.ResponseProcessor._decrypt', side_effect=Exception):
+            with self.assertRaises(DecryptError):
+                processor.process(encrypt(test_data['valid']))
 
 
 class TestValidate(unittest.TestCase):
