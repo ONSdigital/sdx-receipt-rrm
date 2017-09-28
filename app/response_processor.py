@@ -23,6 +23,7 @@ class ResponseProcessor:
     def __init__(self, logger=logger):
         self.logger = logger
         self.tx_id = None
+        self._retries = 5
 
     def process(self, message, tx_id=None):
         self.logger = self.logger.bind(tx_id=tx_id)
@@ -115,9 +116,9 @@ class ResponseProcessor:
         try:
             self.logger.info("Calling external receipting service", service="External receipt")
             session = Session()
-            retries = Retry(total=5, backoff_factor=0.5)
-            session.mount('http://', HTTPAdapter(max_retries=retries))
-            session.mount('https://', HTTPAdapter(max_retries=retries))
+            retries = Retry(total=self._retries, backoff_factor=0.5)
+            session.mount('http://', HTTPAdapter(max_retries=self._retries))
+            session.mount('https://', HTTPAdapter(max_retries=self._retries))
 
             response = session.post(endpoint, data=xml, headers=headers, verify=False, auth=auth)
             self.logger = self.logger.bind(status=response.status_code)
@@ -136,7 +137,8 @@ class ResponseProcessor:
                     self.logger.error("Bad response from endpoint")
                     raise RetryableError
         except MaxRetryError:
-            self.logger.error("Max retries exceeded (5) attempting to send to endpoint")
+            "Max retries exceeded ({}) attempting to send to endpoint".format(retries)
+            self.logger.error()
             raise RetryableError
         except ConnectionError:
             self.logger.error("Connection error occured. Retrying")
