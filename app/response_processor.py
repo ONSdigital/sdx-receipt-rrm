@@ -140,8 +140,8 @@ class ResponseProcessor:
                 self.logger = self.logger.unbind('status')
 
         except MaxRetryError:
-            "Max retries exceeded ({}) attempting to send to RRM endpoint".format(retries)
-            self.logger.error()
+            msg = "Max retries exceeded ({}) attempting to send to RRM endpoint".format(retries)
+            self.logger.error(msg)
             raise RetryableError
         except ConnectionError:
             self.logger.error("Connection error occured. Retrying")
