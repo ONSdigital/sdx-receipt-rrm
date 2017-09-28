@@ -136,6 +136,9 @@ class ResponseProcessor:
                 else:
                     self.logger.error("Bad response from RRM endpoint")
                     raise RetryableError
+            finally:
+                self.logger = self.logger.unbind('status')
+
         except MaxRetryError:
             "Max retries exceeded ({}) attempting to send to RRM endpoint".format(retries)
             self.logger.error()
@@ -146,3 +149,5 @@ class ResponseProcessor:
         except RequestException:
             self.logger.error("Unknown exception occured")
             raise RetryableError
+        finally:
+            self.logger.unbind('request_url')
