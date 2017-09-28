@@ -63,14 +63,14 @@ class ResponseProcessor:
             collection_exercise_sid = elements[-1].split(
                 'collection_exercise_sid: ')[-1].split()[0]
 
-            self.logger.error("Receipt rejected by endpoint",
+            self.logger.error("Receipt rejected by RRM endpoint",
                               msg="No records were found on the man_ce_sample_map table",
                               error=1009,
                               stat_unit_id=stat_unit_id,
                               collection_exercise_sid=collection_exercise_sid)
             raise QuarantinableError
         else:
-            self.logger.error("Bad response from endpoint")
+            self.logger.error("Bad response from RRM endpoint")
             raise RetryableError
 
     def _decrypt(self, token, secret):
@@ -129,15 +129,15 @@ class ResponseProcessor:
                 return response
             except HTTPError:
                 if response.status_code == 400:
-                    self.logger.error("Receipt rejected by endpoint")
+                    self.logger.error("Receipt rejected by RRM endpoint")
                     raise QuarantinableError
                 elif response.status_code == 404:
                     self._check_namespace_error(response)
                 else:
-                    self.logger.error("Bad response from endpoint")
+                    self.logger.error("Bad response from RRM endpoint")
                     raise RetryableError
         except MaxRetryError:
-            "Max retries exceeded ({}) attempting to send to endpoint".format(retries)
+            "Max retries exceeded ({}) attempting to send to RRM endpoint".format(retries)
             self.logger.error()
             raise RetryableError
         except ConnectionError:
