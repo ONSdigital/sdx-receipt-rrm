@@ -41,5 +41,6 @@ def run():
     except KeyboardInterrupt:
         message_consumer.stop()
 
+
 if __name__ == '__main__':
     run()

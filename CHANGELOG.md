@@ -1,4 +1,5 @@
 ### Unreleased
+  - Handle network errors using the ConnectionError exception class and requeing the message
 
 ### 2.5.0 2017-09-25
   - Removed SDX common clone in docker
