@@ -122,7 +122,7 @@ class ResponseProcessor:
 
             response = session.post(endpoint, data=xml, headers=headers, verify=False, auth=auth)
             self.logger = self.logger.bind(status=response.status_code)
-            self.logger.info(response, endpoint, xml, headers)
+            self.logger.info("Request details", data=xml, header=headers)
 
             try:
                 response.raise_for_status()
