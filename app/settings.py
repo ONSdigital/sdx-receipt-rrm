@@ -8,9 +8,9 @@ RECEIPT_PATH = os.getenv("RECEIPT_PATH", "reportingunits")
 RECEIPT_USER = os.getenv("RECEIPT_USER", "")
 RECEIPT_PASS = os.getenv("RECEIPT_PASS", "")
 
-RABBIT_QUARANTINE_QUEUE = os.getenv('RABBITMQ_QUARANTINE_QUEUE', 'rrm_receipt_quarantine')
-RABBIT_QUEUE = os.getenv('RECEIPT_RRM_QUEUE', 'rrm_receipt')
-RABBIT_EXCHANGE = os.getenv('RABBITMQ_EXCHANGE', 'message')
+RABBIT_QUARANTINE_QUEUE = 'rrm_receipt_quarantine'
+RABBIT_QUEUE = 'rrm_receipt'
+RABBIT_EXCHANGE = 'message'
 
 SDX_RECEIPT_RRM_SECRET = os.getenv("SDX_RECEIPT_RRM_SECRET")
 if SDX_RECEIPT_RRM_SECRET is not None:
