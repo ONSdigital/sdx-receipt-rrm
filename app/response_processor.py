@@ -123,7 +123,6 @@ class ResponseProcessor:
             response = session.post(endpoint, data=xml, headers=headers, verify=False, auth=auth)
             self.logger = self.logger.bind(status=response.status_code)
 
-
             try:
                 response.raise_for_status()
                 namespace = {'receipt': 'http://ns.ons.gov.uk/namespaces/resources/receipt'}
