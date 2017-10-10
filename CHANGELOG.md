@@ -1,4 +1,5 @@
 ### Unreleased
+  - Hardcode unchanging variables in settings.py to make configuration management simpler
 
 ### 2.6.0 2017-10-02
   - Handle network errors using the ConnectionError exception class and requeing the message
