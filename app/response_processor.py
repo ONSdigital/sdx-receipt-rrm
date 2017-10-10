@@ -128,7 +128,10 @@ class ResponseProcessor:
                 namespace = {'receipt': 'http://ns.ons.gov.uk/namespaces/resources/receipt'}
                 tree = etree.fromstring(xml)
                 respondent_id = tree.find('receipt:respondent_id', namespace).text
-                self.logger.info("Sent receipt for ", respondent_id=respondent_id)
+                if respondent_id is None:
+                    self.logger.info("Sent receipt, unable to retrieve respondent id")
+                else:
+                    self.logger.info("Sent receipt for ", respondent_id=respondent_id)
                 return response
             except HTTPError:
                 if response.status_code == 400:
