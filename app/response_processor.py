@@ -1,6 +1,6 @@
 from json import loads
 import logging
-import xml.etree.ElementTree as etree
+import defusedxml.ElementTree as etree
 
 from cryptography.fernet import Fernet
 from requests import Session
