@@ -122,11 +122,14 @@ class ResponseProcessor:
 
             response = session.post(endpoint, data=xml, headers=headers, verify=False, auth=auth)
             self.logger = self.logger.bind(status=response.status_code)
-            self.logger.info("Request details", data=xml, header=headers)
+
 
             try:
                 response.raise_for_status()
-                self.logger.info("Sent receipt")
+                namespace = {'receipt': 'http://ns.ons.gov.uk/namespaces/resources/receipt'}
+                tree = etree.fromstring(xml)
+                respondent_id = tree.find('receipt:respondent_id', namespace).text
+                self.logger.info("Sent receipt for ", respondent_id=respondent_id)
                 return response
             except HTTPError:
                 if response.status_code == 400:
