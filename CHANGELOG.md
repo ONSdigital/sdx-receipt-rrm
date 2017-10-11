@@ -1,4 +1,5 @@
 ### Unreleased
+  - Add more logging around receipt being sent to RRM
 
 ### 2.6.0 2017-10-02
   - Handle network errors using the ConnectionError exception class and requeing the message

@@ -1,6 +1,6 @@
 from json import loads
 import logging
-import xml.etree.ElementTree as etree
+import defusedxml.ElementTree as etree
 
 from cryptography.fernet import Fernet
 from requests import Session
@@ -125,7 +125,13 @@ class ResponseProcessor:
 
             try:
                 response.raise_for_status()
-                self.logger.info("Sent receipt")
+                namespace = {'receipt': 'http://ns.ons.gov.uk/namespaces/resources/receipt'}
+                tree = etree.fromstring(xml)
+                respondent_id = tree.find('receipt:respondent_id', namespace).text
+                if respondent_id is None:
+                    self.logger.info("Sent receipt, unable to retrieve respondent id")
+                else:
+                    self.logger.info("Sent receipt for ", respondent_id=respondent_id)
                 return response
             except HTTPError:
                 if response.status_code == 400:
