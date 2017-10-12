@@ -1,4 +1,5 @@
 ### Unreleased
+  - Hardcode unchanging variables in settings.py to make configuration management simpler
   - Add more logging around receipt being sent to RRM
 
 ### 2.6.0 2017-10-02
