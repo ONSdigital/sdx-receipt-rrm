@@ -1,5 +1,6 @@
 ### Unreleased
   - Add all service config to config file
+  - Ensure tx_id is being passed in header
 
 ### 2.7.0 2017-10-16
   - Hardcode unchanging variables in settings.py to make configuration management simpler
