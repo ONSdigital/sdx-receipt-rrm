@@ -12,3 +12,4 @@ venv/
 .idea/
 coverage.xml
 .coverage
+report.html
