@@ -1,6 +1,7 @@
 ### Unreleased
   - Add all service config to config file
   - Ensure tx_id is being passed in header
+  - Change to use pytest to improve test output. Also improve code coverage stats
 
 ### 2.7.0 2017-10-16
   - Hardcode unchanging variables in settings.py to make configuration management simpler
