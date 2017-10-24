@@ -9,6 +9,6 @@ install:
     - make build
     - pip install codecov
 script:
-    - pytest -v tests/ --cov-report html
+    - pytest -v tests/ --cov=app --cov-report html
 after_success:
     - codecov
