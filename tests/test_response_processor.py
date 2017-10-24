@@ -7,7 +7,7 @@ import xml.etree.cElementTree as etree
 from cryptography.fernet import Fernet, InvalidToken
 import responses
 from requests.exceptions import ConnectionError
-from requests.packages.urllib3.exceptions import MaxRetryError
+from urllib3.exceptions import MaxRetryError
 from sdc.rabbit.exceptions import QuarantinableError, RetryableError
 from structlog import wrap_logger
 
@@ -43,6 +43,12 @@ class TestResponseProcessor(unittest.TestCase):
         for case in ('invalid', 'missing_metadata'):
             with self.assertRaises(QuarantinableError):
                 processor.process(encrypt(test_data[case]))
+
+    @responses.activate
+    def test_missing_tx_id(self):
+        responses.add(responses.POST, self.endpoint, status=200)
+        with self.assertRaises(QuarantinableError):
+            processor.process(encrypt(test_data['missing_tx_id']))
 
     @responses.activate
     def test_max_retries(self):
