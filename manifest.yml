@@ -5,7 +5,7 @@ applications:
 
   env:
     CF_DEPLOYMENT: True
-    SDX_COLLECT_SECRET: SuperSecretKey
+    SDX_RECEIPT_RRM_SECRET: SuperSecretKey
     RECEIPT_HOST: http://sdx-mock-receipt:5000
     RECEIPT_PATH: reportingunits
     RECEIPT_USER: ""
