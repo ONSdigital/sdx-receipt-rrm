@@ -1,0 +1,15 @@
+applications:
+- name: sdx-receipt-rrm
+  buildpack: python_buildpack
+  health-check-type: process
+
+  env:
+    CF_DEPLOYMENT: True
+    SDX_COLLECT_SECRET: SuperSecretKey
+    RECEIPT_HOST: http://sdx-mock-receipt:5000
+    RECEIPT_PATH: reportingunits
+    RECEIPT_USER: ""
+    RECEIPT_PASS: ""
+
+  services:
+   - sdx-rabbit-dev
