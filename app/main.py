@@ -12,6 +12,10 @@ logger = wrap_logger(logging.getLogger(__name__))
 
 
 def run():
+    logging.basicConfig(format=app.settings.LOGGING_FORMAT,
+                        datefmt="%Y-%m-%dT%H:%M:%S",
+                        level=app.settings.LOGGING_LEVEL)
+
     logging.getLogger("sdc.rabbit").setLevel(logging.DEBUG)
 
     response_processor = ResponseProcessor(logger)
