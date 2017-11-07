@@ -1,4 +1,6 @@
 ### Unreleased
+
+### 2.8.0 2017-11-01
   - Add all service config to config file
   - Ensure tx_id is being passed in header
   - Change to use pytest to improve test output. Also improve code coverage stats
