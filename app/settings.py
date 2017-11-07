@@ -39,6 +39,6 @@ else:
         user=os.getenv('RABBITMQ_DEFAULT_USER', 'rabbit'),
         password=os.getenv('RABBITMQ_DEFAULT_PASS', 'rabbit'),
         vhost=os.getenv('RABBITMQ_DEFAULT_VHOST', '%2f')
-)
+    )
 
 RABBIT_URLS = [RABBIT_URL, RABBIT_URL2]
