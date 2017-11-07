@@ -17,13 +17,18 @@ SDX_RECEIPT_RRM_SECRET = os.getenv("SDX_RECEIPT_RRM_SECRET")
 if SDX_RECEIPT_RRM_SECRET is not None:
     SDX_RECEIPT_RRM_SECRET = SDX_RECEIPT_RRM_SECRET.encode("ascii")
 
-if os.getenv("CF_DEPLOYMENT", False):
+
+def parse_vcap_services():
     vcap_services = os.getenv("VCAP_SERVICES")
     parsed_vcap_services = json.loads(vcap_services)
     rabbit_config = parsed_vcap_services.get('rabbitmq')
+    rabbit_url = rabbit_config[0].get('credentials').get('uri')
+    rabbit_url2 = rabbit_config[1].get('credentials').get('uri') if len(rabbit_config) > 1 else rabbit_url
+    return rabbit_url, rabbit_url2
 
-    RABBIT_URL = rabbit_config[0].get('credentials').get('uri')
-    RABBIT_URL2 = rabbit_config[1].get('credentials').get('uri') if len(rabbit_config) > 1 else RABBIT_URL
+
+if os.getenv("CF_DEPLOYMENT", False):
+    RABBIT_URL, RABBIT_URL2 = parse_vcap_services()
 else:
     RABBIT_URL = 'amqp://{user}:{password}@{hostname}:{port}/{vhost}'.format(
         hostname=os.getenv('RABBITMQ_HOST', 'rabbit'),
