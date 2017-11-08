@@ -1,4 +1,5 @@
 ### Unreleased
+  - Add Cloudfoundry deployment files
 
 ### 2.8.0 2017-11-01
   - Add all service config to config file
