@@ -6,7 +6,7 @@ applications:
   env:
     CF_DEPLOYMENT: True
     SDX_RECEIPT_RRM_SECRET: IggLKu_vAtU8LnN0HV3CLXMUaGi8LvEk-u5sqOt2QMA=
-    RECEIPT_HOST: http://sdx-mock-receipts.apps.devtest.onsclofo.uk
+    RECEIPT_HOST: http://sdx-mock-receipt.apps.devtest.onsclofo.uk
     RECEIPT_PATH: reportingunits
     RECEIPT_USER: ""
     RECEIPT_PASS: ""
