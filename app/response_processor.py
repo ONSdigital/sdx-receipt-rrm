@@ -24,6 +24,10 @@ class ResponseProcessor:
         self.logger = logger
         self.tx_id = None
         self._retries = 5
+        self.session = Session()
+        retries = Retry(total=self._retries, backoff_factor=0.5)
+        self.session.mount('http://', HTTPAdapter(max_retries=retries))
+        self.session.mount('https://', HTTPAdapter(max_retries=retries))
 
     def process(self, message, tx_id=None):
         self.logger = self.logger.bind(tx_id=tx_id)
@@ -39,15 +43,17 @@ class ResponseProcessor:
         decrypted_json = loads(message)
         self._validate(decrypted_json)
 
-        # Encode
-        xml = self._encode(decrypted_json)
+        try:
+            case_id = decrypted_json['case_id']
+            logger.info("RM submission received {}".format(case_id))
+            self._send_rm_receipt(decrypted_json, case_id)
+        except KeyError:
+            logger.info("RRM Submission received")
+            xml = self._encode(decrypted_json)
+            self._send_receipt(decrypted_json, xml)
+            self.logger = self.logger.unbind("tx_id")
 
-        # Send
-        self._send_receipt(decrypted_json, xml)
-
-        self.logger = self.logger.unbind("tx_id")
-
-        return
+            return
 
     def _check_namespace_error(self, response):
         """Takes a response from rrm receipt endpoint and examines the xml
@@ -102,6 +108,29 @@ class ResponseProcessor:
             raise QuarantinableError
         return xml
 
+    def _send_rm_receipt(self, decrypted, case_id):
+        request_url = settings.RM_SDX_GATEWAY_URL
+
+        try:
+            r = self.session.post(request_url, auth=settings.BASIC_AUTH, json={'caseId': case_id})
+        except MaxRetryError:
+            logger.error("Max retries exceeded (5)",
+                         request_url=request_url,
+                         case_id=case_id)
+            raise RetryableError
+
+        if r.status_code == 200 or r.status_code == 201:
+            logger.info("RM sdx gateway receipt creation was a success",
+                        request_url=request_url,
+                        case_id=case_id)
+            return
+
+        elif 400 <= r.status_code < 500:
+            logger.error("RM sdx gateway returned client error, unable to receipt",
+                         request_url=request_url,
+                         status=r.status_code,
+                         case_id=case_id)
+
     def _send_receipt(self, decrypted, xml):
         endpoint = receipt.get_receipt_endpoint(decrypted)
         if endpoint is None:
@@ -115,12 +144,8 @@ class ResponseProcessor:
 
         try:
             self.logger.info("Calling external receipting service", service="External receipt")
-            session = Session()
-            retries = Retry(total=self._retries, backoff_factor=0.5)
-            session.mount('http://', HTTPAdapter(max_retries=retries))
-            session.mount('https://', HTTPAdapter(max_retries=retries))
-
-            response = session.post(endpoint, data=xml, headers=headers, verify=False, auth=auth)
+            response = self.session.post(
+                endpoint, data=xml, headers=headers, verify=False, auth=auth)
             self.logger = self.logger.bind(status=response.status_code)
 
             try:
