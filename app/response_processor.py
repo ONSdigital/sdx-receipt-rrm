@@ -108,7 +108,7 @@ class ResponseProcessor:
             raise QuarantinableError
         return xml
 
-    def _send_rm_receipt(self, decrypted, case_id):
+    def _send_rm_receipt(self, case_id):
         request_url = settings.RM_SDX_GATEWAY_URL
 
         try:

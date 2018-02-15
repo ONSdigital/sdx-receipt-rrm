@@ -5,6 +5,10 @@ import json
 LOGGING_LEVEL = logging.getLevelName(os.getenv('LOGGING_LEVEL', 'DEBUG'))
 LOGGING_FORMAT = "%(asctime)s.%(msecs)06dZ|%(levelname)s: sdx-receipt-rrm: %(message)s"
 
+SECURITY_USER_NAME = os.getenv('SEFT_CONSUMER_SECURITY_USER_NAME', 'dummy_user')
+SECURITY_USER_PASSWORD = os.getenv('SEFT_CONSUMER_SECURITY_USER_PASSWORD', 'dummy_password')
+BASIC_AUTH = (SECURITY_USER_NAME, SECURITY_USER_PASSWORD)
+
 RECEIPT_HOST = os.getenv("RECEIPT_HOST", "http://sdx-mock-receipt:5000")
 RECEIPT_PATH = os.getenv("RECEIPT_PATH", "reportingunits")
 RECEIPT_USER = os.getenv("RECEIPT_USER", "")
