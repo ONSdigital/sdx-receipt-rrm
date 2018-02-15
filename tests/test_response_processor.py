@@ -255,6 +255,6 @@ class TestRMReceipt(unittest.TestCase):
             status=201)
         processor.process(encrypt(test_data['valid_rm']))
 
-        assert len(responses.calls) == 1
-        assert responses.calls[0].request.url == settings.RM_SDX_GATEWAY_URL
-        assert responses.calls[0].response.text == '{"status": "ok"}'
+        self.assertEqual(len(responses.calls), 1)
+        self.assertEqual(responses.calls[0].request.url, settings.RM_SDX_GATEWAY_URL)
+        self.assertEqual(responses.calls[0].response.text, '{"status": "ok"}')
