@@ -1,4 +1,3 @@
-import logging
 import mock
 import json
 import unittest
@@ -10,7 +9,6 @@ from requests.exceptions import ConnectionError
 from requests.packages.urllib3 import HTTPConnectionPool
 from requests.packages.urllib3.exceptions import MaxRetryError
 from sdc.rabbit.exceptions import QuarantinableError, RetryableError
-from structlog import wrap_logger
 
 from app.response_processor import ResponseProcessor
 from app.helpers.exceptions import DecryptError
@@ -18,8 +16,7 @@ from app import receipt
 from app import settings
 from tests.test_data import test_secret, test_data
 
-logger = wrap_logger(logging.getLogger(__name__))
-processor = ResponseProcessor(logger)
+processor = ResponseProcessor()
 settings.SDX_RECEIPT_RRM_SECRET = test_secret
 
 
@@ -194,7 +191,7 @@ class TestRMReceipt(unittest.TestCase):
         self.decrypted_rm = json.loads(test_data['valid_rm'])
 
     @responses.activate
-    def test_send_receipt_201(self):
+    def test_send_rm_receipt_201(self):
         responses.add(
             responses.POST,
             settings.RM_SDX_GATEWAY_URL,
@@ -208,23 +205,15 @@ class TestRMReceipt(unittest.TestCase):
         self.assertEqual(len(responses.calls), 1)
 
     @responses.activate
-    def test_send_receipt_400(self):
+    def test_send_rm_eceipt_400(self):
         responses.add(
             responses.POST,
             settings.RM_SDX_GATEWAY_URL,
             json={'status': 'client error'},
             status=400)
 
-        with self.assertLogs(level="ERROR") as cm:
-            processor._send_rm_receipt(
-                case_id="601c4ee4-83ed-11e7-bb31-be2e44b06b34")
-
-        self.assertIn(
-            "RM sdx gateway returned client error, unable to receipt",
-            cm[0][0].message)
-
     @responses.activate
-    def test_send_receipt_500(self):
+    def test_send_rm_receipt_500(self):
         responses.add(
             responses.POST,
             settings.RM_SDX_GATEWAY_URL,
@@ -232,13 +221,13 @@ class TestRMReceipt(unittest.TestCase):
             status=500)
 
         with self.assertRaises(RetryableError):
-            self.consumer._send_receipt(
-                case_id="601c4ee4-83ed-11e7-bb31-be2e44b06b34", tx_id=None)
+            processor._send_rm_receipt(
+                case_id="601c4ee4-83ed-11e7-bb31-be2e44b06b34")
 
         self.assertEqual(len(responses.calls), 1)
 
     @responses.activate
-    def test_send_receipt_maxretryerror(self):
+    def test_send_rm_receipt_maxretryerror(self):
         responses.add(
             responses.POST,
             settings.RM_SDX_GATEWAY_URL,
@@ -247,7 +236,6 @@ class TestRMReceipt(unittest.TestCase):
 
         with self.assertRaises(RetryableError):
             with self.assertLogs(level="ERROR") as cm:
-                processor._send_receipt(
-                    case_id="601c4ee4-83ed-11e7-bb31-be2e44b06b34", tx_id=None)
+                processor._send_rm_receipt(case_id="601c4ee4-83ed-11e7-bb31-be2e44b06b34")
 
-        self.assertIn("Max retries exceeded (5)", cm[0][0].message)
+            self.assertIn("Max retries exceeded (5)", cm.output)

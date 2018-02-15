@@ -45,10 +45,10 @@ class ResponseProcessor:
 
         try:
             case_id = decrypted_json['case_id']
-            logger.info("RM submission received {}".format(case_id))
+            self.logger.info("RM submission received {}".format(case_id))
             self._send_rm_receipt(decrypted_json, case_id)
         except KeyError:
-            logger.info("RRM Submission received")
+            self.logger.info("RRM Submission received")
             xml = self._encode(decrypted_json)
             self._send_receipt(decrypted_json, xml)
             self.logger = self.logger.unbind("tx_id")
@@ -130,6 +130,9 @@ class ResponseProcessor:
                          request_url=request_url,
                          status=r.status_code,
                          case_id=case_id)
+        else:
+            logger.error("Service error", request_url=request_url, case_id=case_id)
+            raise RetryableError
 
     def _send_receipt(self, decrypted, xml):
         endpoint = receipt.get_receipt_endpoint(decrypted)
