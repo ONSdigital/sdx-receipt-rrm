@@ -212,6 +212,12 @@ class TestRMReceipt(unittest.TestCase):
             json={'status': 'client error'},
             status=400)
 
+        with self.assertRaises(QuarantinableError):
+            processor._send_rm_receipt(
+                case_id="601c4ee4-83ed-11e7-bb31-be2e44b06b34")
+
+        self.assertEqual(len(responses.calls), 1)
+
     @responses.activate
     def test_send_rm_receipt_500(self):
         responses.add(

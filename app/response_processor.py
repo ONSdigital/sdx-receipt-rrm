@@ -130,6 +130,7 @@ class ResponseProcessor:
                          request_url=request_url,
                          status=r.status_code,
                          case_id=case_id)
+            raise QuarantinableError
         else:
             logger.error("Service error", request_url=request_url, case_id=case_id)
             raise RetryableError
