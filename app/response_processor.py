@@ -46,7 +46,7 @@ class ResponseProcessor:
         try:
             case_id = decrypted_json['case_id']
             self.logger.info("RM submission received {}".format(case_id))
-            self._send_rm_receipt(decrypted_json, case_id)
+            self._send_rm_receipt(case_id)
         except KeyError:
             self.logger.info("RRM Submission received")
             xml = self._encode(decrypted_json)
