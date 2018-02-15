@@ -239,3 +239,16 @@ class TestRMReceipt(unittest.TestCase):
                 processor._send_rm_receipt(case_id="601c4ee4-83ed-11e7-bb31-be2e44b06b34")
 
             self.assertIn("Max retries exceeded (5)", cm.output)
+
+    @responses.activate
+    def test_rm_routing_on_case_id(self):
+        responses.add(
+            responses.POST,
+            settings.RM_SDX_GATEWAY_URL,
+            json={'status': 'ok'},
+            status=201)
+        processor.process(encrypt(test_data['valid_rm']))
+
+        assert len(responses.calls) == 1
+        assert responses.calls[0].request.url == settings.RM_SDX_GATEWAY_URL
+        assert responses.calls[0].response.text == '{"status": "ok"}'
