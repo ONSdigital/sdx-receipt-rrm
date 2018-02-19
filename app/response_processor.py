@@ -119,7 +119,7 @@ class ResponseProcessor:
                          case_id=case_id)
             raise RetryableError
 
-        if r.status_code == 200 or r.status_code == 201:
+        if r.status_code == 201:
             logger.info("RM sdx gateway receipt creation was a success",
                         request_url=request_url,
                         case_id=case_id)
