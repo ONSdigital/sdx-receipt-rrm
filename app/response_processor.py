@@ -132,7 +132,9 @@ class ResponseProcessor:
                          case_id=case_id)
             raise QuarantinableError
         else:
-            logger.error("Service error", request_url=request_url, case_id=case_id)
+            logger.error("SDX --> RM receipting error - retrying",
+                         request_url=request_url,
+                         case_id=case_id)
             raise RetryableError
 
     def _send_receipt(self, decrypted, xml):
