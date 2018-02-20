@@ -24,7 +24,7 @@ SDX_RECEIPT_RRM_SECRET = os.getenv("SDX_RECEIPT_RRM_SECRET")
 if SDX_RECEIPT_RRM_SECRET is not None:
     SDX_RECEIPT_RRM_SECRET = SDX_RECEIPT_RRM_SECRET.encode("ascii")
 
-RM_SDX_GATEWAY_URL = os.getenv("RM_SDX_GATEWAY_URL", "http://sdx-mock-receipt:5000")
+RM_SDX_GATEWAY_URL = os.getenv("RM_SDX_GATEWAY_URL", "http://sdx-mock-receipt:5000/")
 
 
 def parse_vcap_services():
