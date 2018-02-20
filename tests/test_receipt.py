@@ -1,8 +1,9 @@
-import unittest
 import json
+import logging
+import unittest
+
 from app import receipt
 from tests.test_data import test_data
-import logging
 
 logging.disable(logging.CRITICAL)
 

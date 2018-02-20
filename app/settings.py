@@ -5,6 +5,10 @@ import json
 LOGGING_LEVEL = logging.getLevelName(os.getenv('LOGGING_LEVEL', 'DEBUG'))
 LOGGING_FORMAT = "%(asctime)s.%(msecs)06dZ|%(levelname)s: sdx-receipt-rrm: %(message)s"
 
+SECURITY_USER_NAME = os.getenv('RM_RECEIPT_SECURITY_USER_NAME', 'dummy_user')
+SECURITY_USER_PASSWORD = os.getenv('RM_RECEIPT_SECURITY_USER_PASSWORD', 'dummy_password')
+BASIC_AUTH = (SECURITY_USER_NAME, SECURITY_USER_PASSWORD)
+
 RECEIPT_HOST = os.getenv("RECEIPT_HOST", "http://sdx-mock-receipt:5000")
 RECEIPT_PATH = os.getenv("RECEIPT_PATH", "reportingunits")
 RECEIPT_USER = os.getenv("RECEIPT_USER", "")
@@ -20,13 +24,16 @@ SDX_RECEIPT_RRM_SECRET = os.getenv("SDX_RECEIPT_RRM_SECRET")
 if SDX_RECEIPT_RRM_SECRET is not None:
     SDX_RECEIPT_RRM_SECRET = SDX_RECEIPT_RRM_SECRET.encode("ascii")
 
+RM_SDX_GATEWAY_URL = os.getenv("RM_SDX_GATEWAY_URL", "http://sdx-mock-receipt:5000/")
+
 
 def parse_vcap_services():
     vcap_services = os.getenv("VCAP_SERVICES")
     parsed_vcap_services = json.loads(vcap_services)
     rabbit_config = parsed_vcap_services.get('rabbitmq')
     rabbit_url = rabbit_config[0].get('credentials').get('uri') + HEARTBEAT_INTERVAL
-    rabbit_url2 = rabbit_config[1].get('credentials').get('uri') + HEARTBEAT_INTERVAL if len(rabbit_config) > 1 else rabbit_url
+    rabbit_url2 = rabbit_config[1].get('credentials').get(
+        'uri') + HEARTBEAT_INTERVAL if len(rabbit_config) > 1 else rabbit_url
     return rabbit_url, rabbit_url2
 
 

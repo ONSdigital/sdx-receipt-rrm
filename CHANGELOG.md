@@ -1,7 +1,8 @@
 ### Unreleased
+  - Send receipts to RM based on the presence of a case_id field
 
 ### 2.10.0 2018-01-17
-    - Add heartbeat interval to rabbit mq url
+  - Add heartbeat interval to rabbit mq url
 
 ### 2.9.0 2017-11-21
   - Add Cloudfoundry deployment files
