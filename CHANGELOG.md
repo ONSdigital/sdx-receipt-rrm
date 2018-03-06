@@ -1,4 +1,6 @@
 ### Unreleased
+
+### 2.11.0 2018-03-06
   - Send receipts to RM based on the presence of a case_id field
 
 ### 2.10.0 2018-01-17
