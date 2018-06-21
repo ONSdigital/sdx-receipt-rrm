@@ -20,4 +20,3 @@ class TestSettings(unittest.TestCase):
 
     def test_heartbeat(self):
         self.assertEqual("amqp://rabbit:rabbit@rabbit:5672/%2f?heartbeat_interval=5", settings.RABBIT_URL)
-        self.assertEqual("amqp://rabbit:rabbit@rabbit:5672/%2f?heartbeat_interval=5", settings.RABBIT_URL2)
