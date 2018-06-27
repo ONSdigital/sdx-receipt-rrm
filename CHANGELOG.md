@@ -1,4 +1,5 @@
 ### Unreleased
+  - Remove second rabbit host
 
 ### 2.11.0 2018-03-06
   - Send receipts to RM based on the presence of a case_id field
