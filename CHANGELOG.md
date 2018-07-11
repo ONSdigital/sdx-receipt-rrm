@@ -1,4 +1,6 @@
 ### Unreleased
+
+### 2.12.0 2018-06-27
   - Remove second rabbit host
 
 ### 2.11.0 2018-03-06
