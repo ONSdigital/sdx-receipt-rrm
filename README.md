@@ -12,6 +12,11 @@ To install, use:
 make build
 ```
 
+To start the service standalone, use:
+```bash
+make start
+```
+
 To run the test suite, use:
 
 ```bash
@@ -24,10 +29,6 @@ The main configuration options are listed below:
 
 | Environment Variable            | Default                        | Description
 |---------------------------------|--------------------------------|--------------
-| RECEIPT_HOST                    | `http://sdx-mock-receipt:5000` | Host for rrm receipt service
-| RECEIPT_PATH                    | `reportingunits`               | Path for rrm receipt service
-| RECEIPT_USER                    | _none_                         | User for rrm receipt service
-| RECEIPT_PASS                    | _none_                         | Password for rmm receipt service
 | RABBIT_QUEUE                    | `rrm_receipt`                  | Incoming queue to read from
 | RABBIT_EXCHANGE                 | `message`                      | RabbitMQ exchange to use
 | RABBIT_QUARANTINE_QUEUE         | `rrm_receipt_quarantine`       | Rabbit quarantine queue
