@@ -1,4 +1,6 @@
 ### Unreleased
+
+### 2.13.0 2018-09-11
   - Remove all code relating to RRM service
 
 ### 2.12.0 2018-06-27
