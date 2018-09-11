@@ -10,10 +10,6 @@ applications:
   env:
     CF_DEPLOYMENT: True
     SDX_RECEIPT_RRM_SECRET: RECEIPTRRMSECRET
-    RECEIPT_HOST: http://sdx-mock-receipt-SPACE.apps.devtest.onsclofo.uk
-    RECEIPT_PATH: reportingunits
-    RECEIPT_USER: ""
-    RECEIPT_PASS: ""
 
   services:
    - sdx-rabbit-SPACE

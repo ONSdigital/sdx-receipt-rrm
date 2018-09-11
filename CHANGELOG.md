@@ -1,4 +1,5 @@
 ### Unreleased
+  - Remove all code relating to RRM service
 
 ### 2.12.0 2018-06-27
   - Remove second rabbit host
