@@ -6,31 +6,33 @@ from sdc.rabbit import MessageConsumer
 from sdc.rabbit import QueuePublisher
 
 from app.response_processor import ResponseProcessor
-import app.settings
+from app import settings, __version__
 
 logger = wrap_logger(logging.getLogger(__name__))
 
 
 def run():
-    logging.basicConfig(format=app.settings.LOGGING_FORMAT,
+    logging.basicConfig(format=settings.LOGGING_FORMAT,
                         datefmt="%Y-%m-%dT%H:%M:%S",
-                        level=app.settings.LOGGING_LEVEL)
+                        level=settings.LOGGING_LEVEL)
 
     logging.getLogger("sdc.rabbit").setLevel(logging.DEBUG)
+
+    logger.info("Starting SDX Receipt RRM", version=__version__)
 
     response_processor = ResponseProcessor(logger)
 
     quarantine_publisher = QueuePublisher(
-        urls=app.settings.RABBIT_URLS,
-        queue=app.settings.RABBIT_QUARANTINE_QUEUE
+        urls=settings.RABBIT_URLS,
+        queue=settings.RABBIT_QUARANTINE_QUEUE
     )
 
     message_consumer = MessageConsumer(
         durable_queue=True,
-        exchange=app.settings.RABBIT_EXCHANGE,
+        exchange=settings.RABBIT_EXCHANGE,
         exchange_type="topic",
-        rabbit_queue=app.settings.RABBIT_QUEUE,
-        rabbit_urls=app.settings.RABBIT_URLS,
+        rabbit_queue=settings.RABBIT_QUEUE,
+        rabbit_urls=settings.RABBIT_URLS,
         quarantine_publisher=quarantine_publisher,
         process=response_processor.process
     )
@@ -38,7 +40,7 @@ def run():
     try:
         logger.info("Starting consumer")
 
-        if app.settings.SDX_RECEIPT_RRM_SECRET is None:
+        if settings.SDX_RECEIPT_RRM_SECRET is None:
             logger.error("No SDX_RECEIPT_RRM_SECRET env var supplied")
             sys.exit(1)
         message_consumer.run()
