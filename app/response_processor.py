@@ -42,8 +42,9 @@ class ResponseProcessor:
 
         # Send Receipt
         case_id = decrypted_json['case_id']
+        user_id = decrypted_json['metadata']['user_id']
         self.logger.info("RM submission received", case_id=case_id)
-        self._send_rm_receipt(case_id)
+        self._send_rm_receipt(case_id, user_id)
 
     def _decrypt(self, token, secret):
         f = Fernet(secret)
@@ -69,11 +70,12 @@ class ResponseProcessor:
         self.tx_id = decrypted_json['tx_id']
         return
 
-    def _send_rm_receipt(self, case_id):
+    def _send_rm_receipt(self, case_id, user_id):
         request_url = settings.RM_SDX_GATEWAY_URL
-
+        request_json = {'caseId': case_id,
+                        'userId': user_id}
         try:
-            r = self.session.post(request_url, auth=settings.BASIC_AUTH, json={'caseId': case_id})
+            r = self.session.post(request_url, auth=settings.BASIC_AUTH, json=request_json)
         except MaxRetryError:
             logger.error("Max retries exceeded (5)",
                          request_url=request_url,
