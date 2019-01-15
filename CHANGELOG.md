@@ -1,4 +1,5 @@
 ### Unreleased
+  - Add userId to receipt
 
 ### 2.14.0 2018-11-13
   - Add startup log with version

@@ -86,7 +86,7 @@ class TestRMReceipt(unittest.TestCase):
             status=201)
 
         self.assertIsNone(
-            processor._send_rm_receipt(case_id="601c4ee4-83ed-11e7-bb31-be2e44b06b34"))
+            processor._send_rm_receipt(case_id="601c4ee4-83ed-11e7-bb31-be2e44b06b34", user_id="27d38da4-02cf-44e4-8866-3db1be726030"))
 
         self.assertEqual(len(responses.calls), 1)
 
@@ -99,7 +99,7 @@ class TestRMReceipt(unittest.TestCase):
             status=400)
 
         with self.assertRaises(QuarantinableError):
-            processor._send_rm_receipt(case_id="601c4ee4-83ed-11e7-bb31-be2e44b06b34")
+            processor._send_rm_receipt(case_id="601c4ee4-83ed-11e7-bb31-be2e44b06b34", user_id="27d38da4-02cf-44e4-8866-3db1be726030")
 
         self.assertEqual(len(responses.calls), 1)
 
@@ -112,7 +112,7 @@ class TestRMReceipt(unittest.TestCase):
             status=500)
 
         with self.assertRaises(RetryableError):
-            processor._send_rm_receipt(case_id="601c4ee4-83ed-11e7-bb31-be2e44b06b34")
+            processor._send_rm_receipt(case_id="601c4ee4-83ed-11e7-bb31-be2e44b06b34", user_id="27d38da4-02cf-44e4-8866-3db1be726030")
 
         self.assertEqual(len(responses.calls), 1)
 
@@ -126,7 +126,7 @@ class TestRMReceipt(unittest.TestCase):
 
         with self.assertRaises(RetryableError):
             with self.assertLogs(level="ERROR") as cm:
-                processor._send_rm_receipt(case_id="601c4ee4-83ed-11e7-bb31-be2e44b06b34")
+                processor._send_rm_receipt(case_id="601c4ee4-83ed-11e7-bb31-be2e44b06b34", user_id="27d38da4-02cf-44e4-8866-3db1be726030")
 
             self.assertIn("Max retries exceeded (5)", cm.output)
 
