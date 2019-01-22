@@ -1,4 +1,4 @@
-### Unreleased
+### 2.15.0 2019-01-22
   - Add userId to receipt
 
 ### 2.14.0 2018-11-13
