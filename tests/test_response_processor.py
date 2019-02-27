@@ -37,13 +37,54 @@ class TestResponseProcessor(unittest.TestCase):
     def test_missing_tx_id(self):
         responses.add(responses.POST, self.endpoint, status=200)
         with self.assertRaises(QuarantinableError):
-            processor.process(encrypt(test_data['missing_tx_id']))
+            with self.assertLogs() as cm:
+                processor.process(encrypt(test_data['missing_tx_id']))
+            self.assertIn('Decrypted json missing tx_id . Quarantining message', cm.output[0])
 
     @responses.activate
     def test_missing_case_id(self):
         responses.add(responses.POST, self.endpoint, status=200)
         with self.assertRaises(QuarantinableError):
-            processor.process(encrypt(test_data['missing_case_id']))
+            with self.assertLogs() as cm:
+                processor.process(encrypt(test_data['missing_case_id']))
+            self.assertIn('Decrypted json missing metadata. Quarantining message', cm.output[0])
+
+    @responses.activate
+    def test_missing_metadata(self):
+        responses.add(responses.POST, self.endpoint, status=201)
+        with self.assertRaises(QuarantinableError):
+            with self.assertLogs() as cm:
+                processor.process(encrypt(test_data['missing_metadata']))
+            self.assertIn('Decrypted json missing metadata. Quarantining message', cm.output[0])
+
+    @responses.activate
+    def test_successful_logs_contain_bound_parameters(self):
+        responses.add(responses.POST, self.endpoint, status=201)
+        with self.assertLogs() as cm:
+            processor.process(encrypt(test_data['valid']))
+        self.assertIn('tx_id', cm.output[0])
+        self.assertIn('case_id', cm.output[0])
+        self.assertIn('user_id', cm.output[0])
+        self.assertIn('RM submission received', cm.output[0])
+        self.assertIn('tx_id', cm.output[1])
+        self.assertIn('case_id', cm.output[1])
+        self.assertIn('user_id', cm.output[1])
+        self.assertIn('RM sdx gateway receipt creation was a success', cm.output[1])
+
+    @responses.activate
+    def test_tx_id_in_header_not_matching_tx_id_in_message_leads_to_message_in_logs(self):
+        responses.add(responses.POST, self.endpoint, status=201)
+        with self.assertRaises(QuarantinableError):
+            with self.assertLogs() as cm:
+                processor.process(encrypt(test_data['valid']), 'bad_tx_id')
+            self.assertIn('tx_ids from decrypted_json and message header do not match. Quarantining message', cm.output[0])
+
+    @responses.activate
+    def test_tx_id_in_header_matching_tx_id_in_message(self):
+        responses.add(responses.POST, self.endpoint, status=201)
+        with self.assertLogs() as cm:
+            processor.process(encrypt(test_data['valid']), '0f534ffc-9442-414c-b39f-a756b4adc6cb')
+        self.assertEquals(len(cm.output), 2)
 
 
 class TestDecrypt(unittest.TestCase):
@@ -66,11 +107,11 @@ class TestDecrypt(unittest.TestCase):
 
 class TestValidate(unittest.TestCase):
     def test_valid_data(self):
-        processor._validate(json.loads(test_data['valid']))
+        processor._validate(json.loads(test_data['valid']), None)
 
     def test_missing_metadata(self):
         with self.assertRaises(QuarantinableError):
-            processor._validate(json.loads(test_data['missing_metadata']))
+            processor._validate(json.loads(test_data['missing_metadata']), None)
 
 
 class TestRMReceipt(unittest.TestCase):

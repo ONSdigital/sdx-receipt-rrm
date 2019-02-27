@@ -12,14 +12,13 @@ from structlog import wrap_logger
 from app import settings
 from app.helpers.exceptions import DecryptError
 
-logger = wrap_logger(logging.getLogger(__name__))
+local_logger = wrap_logger(logging.getLogger(__name__))
 
 
 class ResponseProcessor:
 
-    def __init__(self, logger=logger):
+    def __init__(self, logger=local_logger):
         self.logger = logger
-        self.tx_id = None
         self._retries = 5
         self.session = Session()
         retries = Retry(total=self._retries, backoff_factor=0.5)
@@ -27,6 +26,10 @@ class ResponseProcessor:
         self.session.mount('https://', HTTPAdapter(max_retries=retries))
 
     def process(self, message, tx_id=None):
+        """Entry point for processing a message off the rabbit queue
+        :param message  The message to be processed
+        :param tx_id    The tx_id of the message, consistent across all of sdx services
+        """
         self.logger = self.logger.bind(tx_id=tx_id)
 
         # Decrypt
@@ -38,12 +41,15 @@ class ResponseProcessor:
 
         # Validate
         decrypted_json = loads(message)
-        self._validate(decrypted_json)
+        self._validate(decrypted_json, tx_id)
 
         # Send Receipt
         case_id = decrypted_json['case_id']
         user_id = decrypted_json['metadata']['user_id']
-        self.logger.info("RM submission received", case_id=case_id)
+        tx_id = decrypted_json['tx_id']
+
+        self.logger = self.logger.bind(tx_id=tx_id, case_id=case_id, user_id=user_id)
+        self.logger.info("RM submission received")
         self._send_rm_receipt(case_id, user_id)
 
     def _decrypt(self, token, secret):
@@ -54,21 +60,28 @@ class ResponseProcessor:
             message = f.decrypt(token.encode("utf-8"))
         return message.decode("utf-8")
 
-    def _validate(self, decrypted_json):
-        if 'tx_id' not in decrypted_json:
-            logger.error('tx_ids from decrypted_json and message header do not match. Quarantining message',
-                         decrypted_tx_id=decrypted_json.get('tx_id'),
-                         message_tx_id=self.tx_id)
-            raise QuarantinableError
+    def _validate(self, decrypted_json, tx_id):
+        """Validate that tx_id, case_id and metadata elements are present,
+        log an error for each one that is missing and then raise a QuarantinableError """
+
         if 'case_id' not in decrypted_json:
-            logger.error("Missing case_id. Quarantining message")
-            raise QuarantinableError
-        if 'metadata' not in decrypted_json:
-            logger.error("Missing metadata. Quarantining message")
+            self.logger.error("Decrypted json missing case_id. Quarantining message")
             raise QuarantinableError
 
-        self.tx_id = decrypted_json['tx_id']
-        return
+        if 'metadata' not in decrypted_json:
+            self.logger.error("Decrypted json missing metadata. Quarantining message")
+            raise QuarantinableError
+
+        if 'tx_id' not in decrypted_json:
+            self.logger.error('Decrypted json missing tx_id . Quarantining message')
+            raise QuarantinableError
+
+        decrypted_tx_id = decrypted_json['tx_id']
+        if tx_id and decrypted_tx_id != tx_id:
+            self.logger.error('tx_ids from decrypted_json and message header do not match. Quarantining message',
+                              decrypted_tx_id=decrypted_tx_id,
+                              message_tx_id=tx_id)
+            raise QuarantinableError
 
     def _send_rm_receipt(self, case_id, user_id):
         request_url = settings.RM_SDX_GATEWAY_URL
@@ -77,25 +90,21 @@ class ResponseProcessor:
         try:
             r = self.session.post(request_url, auth=settings.BASIC_AUTH, json=request_json)
         except MaxRetryError:
-            logger.error("Max retries exceeded (5)",
-                         request_url=request_url,
-                         case_id=case_id)
+            self.logger.error("Max retries exceeded (5)",
+                              request_url=request_url)
             raise RetryableError
 
         if r.status_code == 201:
-            logger.info("RM sdx gateway receipt creation was a success",
-                        request_url=request_url,
-                        case_id=case_id)
+            self.logger.info("RM sdx gateway receipt creation was a success",
+                             request_url=request_url)
             return
 
         elif 400 <= r.status_code < 500:
-            logger.error("RM sdx gateway returned client error, unable to receipt",
-                         request_url=request_url,
-                         status=r.status_code,
-                         case_id=case_id)
+            self.logger.error("RM sdx gateway returned client error, unable to receipt",
+                              request_url=request_url,
+                              status=r.status_code)
             raise QuarantinableError
         else:
-            logger.error("SDX --> RM receipting error - retrying",
-                         request_url=request_url,
-                         case_id=case_id)
+            self.logger.error("SDX --> RM receipting error - retrying",
+                              request_url=request_url)
             raise RetryableError
