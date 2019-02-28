@@ -1,5 +1,6 @@
 import mock
 import json
+import logging
 import unittest
 
 from cryptography.fernet import Fernet, InvalidToken
@@ -7,13 +8,16 @@ import responses
 from requests.packages.urllib3 import HTTPConnectionPool
 from requests.packages.urllib3.exceptions import MaxRetryError
 from sdc.rabbit.exceptions import QuarantinableError, RetryableError
+from structlog import wrap_logger
 
 from app.response_processor import ResponseProcessor
 from app.helpers.exceptions import DecryptError
 from app import settings
 from tests.test_data import test_secret, test_data
 
-processor = ResponseProcessor()
+logger = wrap_logger(logging.getLogger(__name__))
+
+processor = ResponseProcessor(logger)
 settings.SDX_RECEIPT_RRM_SECRET = test_secret
 
 

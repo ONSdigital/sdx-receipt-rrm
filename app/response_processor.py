@@ -1,5 +1,4 @@
 from json import loads
-import logging
 
 from cryptography.fernet import Fernet
 from requests import Session
@@ -7,17 +6,14 @@ from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.exceptions import MaxRetryError
 from requests.packages.urllib3.util.retry import Retry
 from sdc.rabbit.exceptions import RetryableError, QuarantinableError
-from structlog import wrap_logger
 
 from app import settings
 from app.helpers.exceptions import DecryptError
 
-local_logger = wrap_logger(logging.getLogger(__name__))
-
 
 class ResponseProcessor:
 
-    def __init__(self, logger=local_logger):
+    def __init__(self, logger):
         self.logger = logger
         self._retries = 5
         self.session = Session()
