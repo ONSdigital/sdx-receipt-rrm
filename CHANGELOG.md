@@ -1,4 +1,5 @@
 ### Unreleased
+  - Bound case_id , tx_id and user_id to logger
 
 ### 2.15.0 2019-01-22
   - Add userId to receipt
