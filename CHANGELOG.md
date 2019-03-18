@@ -1,4 +1,6 @@
 ### Unreleased
+
+### 2.15.1 2019-03-14
   - Bound case_id , tx_id and user_id to logger
 
 ### 2.15.0 2019-01-22
