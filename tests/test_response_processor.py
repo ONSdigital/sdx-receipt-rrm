@@ -39,6 +39,9 @@ class TestResponseProcessor(unittest.TestCase):
 
     @responses.activate
     def test_missing_tx_id(self):
+        """Tests the correct error message is logged and a QuarantineableError is thrown when the tx_id
+        is missing from the submission
+        """
         responses.add(responses.POST, self.endpoint, status=200)
         with self.assertRaises(QuarantinableError):
             with self.assertLogs() as cm:
@@ -47,6 +50,9 @@ class TestResponseProcessor(unittest.TestCase):
 
     @responses.activate
     def test_missing_case_id(self):
+        """Tests the correct error message is logged and a QuarantineableError is thrown when the case_id
+        is missing from the submission
+        """
         responses.add(responses.POST, self.endpoint, status=200)
         with self.assertRaises(QuarantinableError):
             with self.assertLogs() as cm:
@@ -55,6 +61,9 @@ class TestResponseProcessor(unittest.TestCase):
 
     @responses.activate
     def test_missing_metadata(self):
+        """Tests the correct error message is logged and a QuarantineableError is thrown when the metadata
+        is missing from the submission
+        """
         responses.add(responses.POST, self.endpoint, status=201)
         with self.assertRaises(QuarantinableError):
             with self.assertLogs() as cm:
@@ -66,29 +75,34 @@ class TestResponseProcessor(unittest.TestCase):
         responses.add(responses.POST, self.endpoint, status=201)
         with self.assertLogs() as cm:
             processor.process(encrypt(test_data['valid']))
-        self.assertIn('tx_id', cm.output[0])
-        self.assertIn('case_id', cm.output[0])
-        self.assertIn('user_id', cm.output[0])
-        self.assertIn('RM submission received', cm.output[0])
-        self.assertIn('tx_id', cm.output[1])
-        self.assertIn('case_id', cm.output[1])
-        self.assertIn('user_id', cm.output[1])
-        self.assertIn('RM sdx gateway receipt creation was a success', cm.output[1])
+        self.assertIn('tx_id', cm.output[2])
+        self.assertIn('case_id', cm.output[2])
+        self.assertIn('user_id', cm.output[2])
+        self.assertIn('RM submission received', cm.output[2])
+        self.assertIn('tx_id', cm.output[3])
+        self.assertIn('case_id', cm.output[3])
+        self.assertIn('user_id', cm.output[3])
+        self.assertIn('RM sdx gateway receipt creation was a success', cm.output[3])
 
     @responses.activate
     def test_tx_id_in_header_not_matching_tx_id_in_message_leads_to_message_in_logs(self):
+        """Test the error message that occurs when the tx_id in the header and the message don't match doesn't appear
+        in any of the logging during the processing
+        """
         responses.add(responses.POST, self.endpoint, status=201)
         with self.assertRaises(QuarantinableError):
             with self.assertLogs() as cm:
                 processor.process(encrypt(test_data['valid']), 'bad_tx_id')
-            self.assertIn('tx_ids from decrypted_json and message header do not match. Quarantining message', cm.output[0])
+            self.assertIn('tx_ids from decrypted_json and message header do not match. Quarantining message', cm.output)
 
     @responses.activate
     def test_tx_id_in_header_matching_tx_id_in_message(self):
+        """Test that no error message occurs when the tx_id in the header and the message match.
+        """
         responses.add(responses.POST, self.endpoint, status=201)
         with self.assertLogs() as cm:
             processor.process(encrypt(test_data['valid']), '0f534ffc-9442-414c-b39f-a756b4adc6cb')
-        self.assertEquals(len(cm.output), 2)
+        self.assertNotIn('tx_ids from decrypted_json and message header do not match. Quarantining message', cm.output)
 
 
 class TestDecrypt(unittest.TestCase):
