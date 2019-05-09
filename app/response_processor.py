@@ -27,8 +27,8 @@ class ResponseProcessor:
         :param tx_id    The tx_id of the message, consistent across all of sdx services
         """
         self.logger = self.logger.bind(tx_id=tx_id)
-
         # Decrypt
+        self.logger.info("Decrypting message")
         try:
             message = self._decrypt(token=message, secret=settings.SDX_RECEIPT_RRM_SECRET)
         except Exception:
@@ -36,6 +36,7 @@ class ResponseProcessor:
             raise DecryptError("Failed to decrypt")
 
         # Validate
+        self.logger.info("Validating message")
         decrypted_json = loads(message)
         self._validate(decrypted_json, tx_id)
 
@@ -47,6 +48,10 @@ class ResponseProcessor:
         self.logger = self.logger.bind(tx_id=tx_id, case_id=case_id, user_id=user_id)
         self.logger.info("RM submission received")
         self._send_rm_receipt(case_id, user_id)
+
+        # If we don't unbind these fields, their current value will be retained for the next
+        # submission.  This leads to incorrect values being logged out in the bound fields.
+        self.logger = self.logger.unbind("tx_id", "case_id", "user_id")
 
     def _decrypt(self, token, secret):
         f = Fernet(secret)
