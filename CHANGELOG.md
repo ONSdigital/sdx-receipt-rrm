@@ -1,4 +1,6 @@
 ### Unreleased
+
+### 2.15.2 2019-05-14
   - Fix bug where previous submissions field values were bound to log lines of current submission
   - Update packages with security issues
 
