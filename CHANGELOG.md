@@ -1,4 +1,6 @@
 ### Unreleased
+  - Remove python 3.4 and 3.5 from travis builds
+  - Add python 3.7 to travis builds
 
 ### 2.15.2 2019-05-14
   - Fix bug where previous submissions field values were bound to log lines of current submission
