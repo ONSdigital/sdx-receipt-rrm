@@ -13,7 +13,7 @@ RABBIT_QUARANTINE_QUEUE = 'rrm_receipt_quarantine'
 RABBIT_QUEUE = 'rrm_receipt'
 RABBIT_EXCHANGE = 'message'
 
-HEARTBEAT_INTERVAL = "?heartbeat_interval=5"
+HEARTBEAT_INTERVAL = "?heartbeat=5"
 
 SDX_RECEIPT_RRM_SECRET = os.getenv("SDX_RECEIPT_RRM_SECRET")
 if SDX_RECEIPT_RRM_SECRET is not None:
