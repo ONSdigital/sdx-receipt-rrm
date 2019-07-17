@@ -1,4 +1,5 @@
 ### Unreleased
+  - Reverted to default heartbeat
 
 ### 2.16.0 2019-06-20
   - Remove python 3.4 and 3.5 from travis builds

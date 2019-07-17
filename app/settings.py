@@ -13,8 +13,6 @@ RABBIT_QUARANTINE_QUEUE = 'rrm_receipt_quarantine'
 RABBIT_QUEUE = 'rrm_receipt'
 RABBIT_EXCHANGE = 'message'
 
-HEARTBEAT_INTERVAL = "?heartbeat=5"
-
 SDX_RECEIPT_RRM_SECRET = os.getenv("SDX_RECEIPT_RRM_SECRET")
 if SDX_RECEIPT_RRM_SECRET is not None:
     SDX_RECEIPT_RRM_SECRET = SDX_RECEIPT_RRM_SECRET.encode("ascii")
@@ -26,9 +24,9 @@ def parse_vcap_services():
     vcap_services = os.getenv("VCAP_SERVICES")
     parsed_vcap_services = json.loads(vcap_services)
     rabbit_config = parsed_vcap_services.get('rabbitmq')
-    rabbit_url = rabbit_config[0].get('credentials').get('uri') + HEARTBEAT_INTERVAL
+    rabbit_url = rabbit_config[0].get('credentials').get('uri')
     rabbit_url2 = rabbit_config[1].get('credentials').get(
-        'uri') + HEARTBEAT_INTERVAL if len(rabbit_config) > 1 else rabbit_url
+        'uri') if len(rabbit_config) > 1 else rabbit_url
     return rabbit_url, rabbit_url2
 
 
@@ -41,6 +39,6 @@ else:
         user=os.getenv('RABBITMQ_DEFAULT_USER', 'rabbit'),
         password=os.getenv('RABBITMQ_DEFAULT_PASS', 'rabbit'),
         vhost=os.getenv('RABBITMQ_DEFAULT_VHOST', '%2f')
-    ) + HEARTBEAT_INTERVAL
+    )
 
 RABBIT_URLS = [RABBIT_URL]
