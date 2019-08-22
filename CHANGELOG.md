@@ -1,9 +1,9 @@
 ### Unreleased
 
-### 2.17.0 2019-06-20
+### 2.17.0 2019-08-01
   - Reverted to default heartbeat
 
-### 2.16.0 2019-08-01
+### 2.16.0 2019-06-20
   - Remove python 3.4 and 3.5 from travis builds
   - Add python 3.7 to travis builds
   - Update sdc-rabbit, tornado and pika to allow upgrade to python 3.7
