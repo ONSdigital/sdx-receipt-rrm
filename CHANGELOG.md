@@ -1,4 +1,6 @@
 ### Unreleased
+  - Updated sdc-rabbit to 1.7.0 to fix reconnection issues
+  - Updated various other dependencies
 
 ### 2.17.0 2019-08-01
   - Reverted to default heartbeat
