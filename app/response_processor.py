@@ -3,6 +3,7 @@ from json import loads
 from cryptography.fernet import Fernet
 from requests import Session
 from requests.adapters import HTTPAdapter
+from requests.exceptions import RequestException
 from requests.packages.urllib3.exceptions import MaxRetryError
 from requests.packages.urllib3.util.retry import Retry
 from sdc.rabbit.exceptions import RetryableError, QuarantinableError
@@ -89,10 +90,14 @@ class ResponseProcessor:
         request_json = {'caseId': case_id,
                         'userId': user_id}
         try:
-            r = self.session.post(request_url, auth=settings.BASIC_AUTH, json=request_json)
+            r = self.session.post(request_url, auth=settings.BASIC_AUTH, json=request_json, timeout=60)
         except MaxRetryError:
             self.logger.error("Max retries exceeded (5)",
                               request_url=request_url)
+            raise RetryableError
+        except RequestException:
+            self.logger.exception("Something unexpected went wrong connecting to the gateway",
+                                  request_url=request_url)
             raise RetryableError
 
         if r.status_code == 201:
