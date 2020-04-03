@@ -5,6 +5,7 @@ import unittest
 
 from cryptography.fernet import Fernet, InvalidToken
 import responses
+from requests.exceptions import RequestException
 from requests.packages.urllib3 import HTTPConnectionPool
 from requests.packages.urllib3.exceptions import MaxRetryError
 from sdc.rabbit.exceptions import QuarantinableError, RetryableError
@@ -187,7 +188,20 @@ class TestRMReceipt(unittest.TestCase):
             with self.assertLogs(level="ERROR") as cm:
                 processor._send_rm_receipt(case_id="601c4ee4-83ed-11e7-bb31-be2e44b06b34", user_id="27d38da4-02cf-44e4-8866-3db1be726030")
 
-            self.assertIn("Max retries exceeded (5)", cm.output)
+        self.assertIn("Max retries exceeded (5)", cm.output[0])
+
+    @responses.activate
+    def test_send_rm_receipt_requestexception(self):
+        responses.add(
+            responses.POST,
+            settings.RM_SDX_GATEWAY_URL,
+            body=RequestException("Something went wrong"))
+
+        with self.assertRaises(RetryableError):
+            with self.assertLogs(level="ERROR") as cm:
+                processor._send_rm_receipt(case_id="601c4ee4-83ed-11e7-bb31-be2e44b06b34", user_id="27d38da4-02cf-44e4-8866-3db1be726030")
+
+        self.assertIn("Something unexpected went wrong connecting to the gateway", cm.output[0])
 
     @responses.activate
     def test_rm_routing_on_case_id(self):
