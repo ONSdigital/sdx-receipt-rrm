@@ -1,4 +1,5 @@
 ### Unreleased
+  - Add 60 second timeout to requests and add error logging
 
 ### 2.18.1 2019-11-08
   - Add python 3.8 to travis builds
