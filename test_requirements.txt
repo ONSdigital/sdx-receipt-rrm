@@ -1,7 +1,6 @@
-flake8==3.7.7
-mock==3.0.5
-responses==0.10.6
-pytest==4.6.2
-pytest-cov==2.7.1
-pytest-html==1.20.0
-
+flake8==3.8.1
+mock==4.0.2
+responses==0.10.14
+pytest==5.4.2
+pytest-cov==2.8.1
+pytest-html==2.1.1
