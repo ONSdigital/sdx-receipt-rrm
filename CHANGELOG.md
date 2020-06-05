@@ -1,4 +1,5 @@
 ### Unreleased
+  - Remove Cloudfoundry deployment files
 
 ### 2.18.2 2020-05-21
   - Add 60 second timeout to requests and add error logging
