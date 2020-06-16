@@ -17,7 +17,7 @@ if SDX_RECEIPT_RRM_SECRET is not None:
     SDX_RECEIPT_RRM_SECRET = SDX_RECEIPT_RRM_SECRET.encode("ascii")
 
 RM_SDX_GATEWAY_URL = os.getenv("RM_SDX_GATEWAY_URL", "http://sdx-mock-receipt:5000/receipts")
-
+RM_SDX_GATEWAY_CERT_LOCATION = os.getenv("RM_SDX_GATEWAY_CERT_LOCATION", "path/to/ons.pem")
 
 RABBIT_URL = 'amqp://{user}:{password}@{hostname}:{port}/{vhost}'.format(
     hostname=os.getenv('RABBITMQ_HOST', 'rabbit'),
