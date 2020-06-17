@@ -87,10 +87,11 @@ class ResponseProcessor:
 
     def _send_rm_receipt(self, case_id, user_id):
         request_url = settings.RM_SDX_GATEWAY_URL
+        cert_location = settings.RM_SDX_GATEWAY_CERT_LOCATION
         request_json = {'caseId': case_id,
                         'userId': user_id}
         try:
-            r = self.session.post(request_url, auth=settings.BASIC_AUTH, json=request_json, timeout=60)
+            r = self.session.post(request_url, verify=cert_location, auth=settings.BASIC_AUTH, json=request_json, timeout=60)
         except MaxRetryError:
             self.logger.error("Max retries exceeded (5)",
                               request_url=request_url)
