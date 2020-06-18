@@ -5,22 +5,36 @@
 ``sdx-receipt-rrm`` is a component of the Office for National Statistics (ONS) Survey Data Exchange (SDX) product which sends receipts to RRM.
 
 ## Installation
+This application presently installs required packages from requirements files:
+- `requirements.txt`: packages for the application, with hashes for all packages: see https://pypi.org/project/hashin/
+- `test-requirements.txt`: packages for testing and linting
 
-To install, use:
+It's also best to use `pyenv` and `pyenv-virtualenv`, to build in a virtual environment with the currently recommended version of Python.  To install these, see:
+- https://github.com/pyenv/pyenv
+- https://github.com/pyenv/pyenv-virtualenv
+- (Note that the homebrew version of `pyenv` is easiest to install, but can lag behind the latest release of Python.)
 
-```bash
-make build
+### Getting started
+Once your virtual environment is set, install the requirements:
+```shell
+$ make build
 ```
 
-To start the service standalone, use:
-```bash
-make start
+To test, first run `make build` as above, then run:
+```shell
+$ make test
 ```
 
-To run the test suite, use:
+It's also possible to install within a container using docker. From the sdx-receipt-rrm directory:
+```shell
+$ docker build -t sdx-receipt-rrm .
+```
 
-```bash
-make test
+## Usage
+
+Start sdx-receipt-rrm service using the following command:
+```shell
+$ make start
 ```
 
 ## Configuration
