@@ -1,5 +1,7 @@
 ### Unreleased
-  - send receipt to use https
+
+### 2.19.0 2020-06-18
+  - Send receipt to use https
 
 ### 2.18.3 2020-06-09
   - Remove Cloudfoundry deployment files
